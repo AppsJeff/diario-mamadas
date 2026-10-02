@@ -18,7 +18,7 @@
 /* Layout: coluna única de app — próxima mamadeira, registro rápido, período (semana/mês/ano) com calendário, detalhe do dia. */
 :root{
   --bg:#EFF2F8; --surface:#FFFFFF; --surface-2:#F5F7FB; --ink:#1B2232; --muted:#5D6780; --line:#DAE0EC;
-  --bottle:#2F67C9; --bottle-soft:#E3ECFB; --breast:#B64A73; --breast-soft:#F8E5EC;
+  --bottle:#2F67C9; --bottle-soft:#E3ECFB; --breast:#B64A73; --breast-soft:#F8E5EC; --breast-mid:#D98BA8; --breast-low:#EFC9D7;
   --ok:#23805A; --ok-soft:#E0F2E9; --warn:#B85D12; --warn-soft:#FBEBDC; --late:#B33A3A; --late-soft:#F9E1E1;
   --shadow:0 1px 2px rgba(27,34,50,.06),0 6px 20px rgba(27,34,50,.06);
   --f-display:"Bricolage Grotesque",ui-rounded,"Segoe UI",system-ui,sans-serif;
@@ -26,12 +26,12 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0F121A; --surface:#181D29; --surface-2:#1F2533; --ink:#E5E8F1; --muted:#97A0B6; --line:#2A3142;
-  --bottle:#86A9EE; --bottle-soft:#1F2C47; --breast:#E98DAF; --breast-soft:#3A2230;
+  --bottle:#86A9EE; --bottle-soft:#1F2C47; --breast:#E98DAF; --breast-soft:#3A2230; --breast-mid:#B06A88; --breast-low:#6E4153;
   --ok:#6CC99B; --ok-soft:#183427; --warn:#F1A35E; --warn-soft:#3A2A1A; --late:#F08A8A; --late-soft:#3B1E22;
   --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0F121A; --surface:#181D29; --surface-2:#1F2533; --ink:#E5E8F1; --muted:#97A0B6; --line:#2A3142;
-  --bottle:#86A9EE; --bottle-soft:#1F2C47; --breast:#E98DAF; --breast-soft:#3A2230;
+  --bottle:#86A9EE; --bottle-soft:#1F2C47; --breast:#E98DAF; --breast-soft:#3A2230; --breast-mid:#B06A88; --breast-low:#6E4153;
   --ok:#6CC99B; --ok-soft:#183427; --warn:#F1A35E; --warn-soft:#3A2A1A; --late:#F08A8A; --late-soft:#3B1E22;
   --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark}
 
@@ -92,7 +92,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .nav h2{text-align:center;flex:1}
 .split{display:flex;flex-direction:column;gap:6px}
 .split-bar{display:flex;height:16px;border-radius:999px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line)}
-.split-bar .sp{background:var(--breast)} .split-bar .sm{background:var(--bottle)}
+.split-bar .sp,.split-bar .qs{background:var(--breast)} .split-bar .qm{background:var(--breast-mid)} .split-bar .qp{background:var(--breast-low)} .split-bar .sm{background:var(--bottle)}
+.qual-leg{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.qual-leg i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 .split-legend{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;font-weight:700;flex-wrap:wrap}
 .verdict{font-size:.9rem;font-weight:600}
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 10px}
@@ -126,7 +128,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .cell{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:5px 3px 6px;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;min-height:62px}
 .cell .dn{font-size:.78rem;font-weight:800;font-variant-numeric:tabular-nums}
 .cell .mini-split{width:86%;height:6px;border-radius:999px;overflow:hidden;display:flex;background:var(--surface-2)}
-.cell .mini-split .sp{background:var(--breast)} .cell .mini-split .sm{background:var(--bottle)}
+.cell .mini-split .sp,.cell .mini-split .qs{background:var(--breast)} .cell .mini-split .qm{background:var(--breast-mid)} .cell .mini-split .qp{background:var(--breast-low)} .cell .mini-split .sm{background:var(--bottle)}
 .cell .cnt{font-size:.68rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
 .cell.empty-day .dn{color:var(--muted)}
 .cell.fut{opacity:.4}
@@ -183,6 +185,24 @@ textarea{resize:vertical;min-height:56px}
 .quick button[aria-pressed="true"]{background:var(--bottle-soft);border-color:var(--bottle);color:var(--bottle)}
 .err{color:var(--late);font-size:.85rem;font-weight:700}
 
+/* Arroto */
+.burp-start{border:1.5px dashed var(--line);background:var(--surface);border-radius:16px;padding:12px 14px;font-weight:800;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left}
+.burp-start small{font-weight:600;color:var(--muted)}
+.burp{background:var(--surface);border:2px solid var(--warn);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.burp.done{border-color:var(--ok);background:var(--ok-soft)}
+.burp-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.burp .clock{font-family:var(--f-display);font-size:3rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:var(--warn)}
+.burp.done .clock{color:var(--ok);font-size:1.6rem}
+.burp .bar>span{background:var(--warn)} .burp.done .bar>span{background:var(--ok)}
+.burp-btns{display:flex;gap:8px;flex-wrap:wrap}
+/* Qualidade */
+.qual-btns{display:flex;flex-direction:column;gap:8px}
+.qbtn{border:1.5px solid var(--breast);border-radius:14px;padding:14px;font-weight:800;font-size:1.05rem;text-align:left;display:flex;justify-content:space-between;align-items:center;background:var(--surface);color:var(--ink)}
+.qbtn small{font-weight:600;color:var(--muted);font-size:.8rem}
+.qbtn[data-q="s"]{background:var(--breast);color:var(--surface);border-color:var(--breast)} .qbtn[data-q="s"] small{color:var(--surface);opacity:.85}
+.qbtn[data-q="m"]{background:var(--breast-soft)}
+.qtag{font-size:.75rem;font-weight:800;margin-left:2px}
+.qtag.s{color:var(--ok)} .qtag.m{color:var(--warn)} .qtag.p{color:var(--late)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 10px 10px 16px;display:flex;gap:12px;align-items:center;font-weight:700;font-size:.9rem;z-index:30;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .toast button{background:transparent;border:1px solid currentColor;color:inherit;border-radius:9px;padding:5px 10px;font-weight:800;font-size:.8rem}
 .foot{font-size:.75rem;color:var(--muted);text-align:center;margin:0}
@@ -222,8 +242,24 @@ textarea{resize:vertical;min-height:56px}
   </section>
 
   <section class="actions">
-    <button class="act breast" type="button" id="add-breast">+ Peito<small>Registra agora com um toque</small></button>
+    <button class="act breast" type="button" id="add-breast">+ Peito<small>Registrar e dizer como foi</small></button>
     <button class="act bottle" type="button" id="add-bottle">+ Mamadeira<small>Informe os ml</small></button>
+  </section>
+
+  <button class="burp-start" type="button" id="burp-start">Cronômetro de arroto<small id="burp-dur">20 min</small></button>
+  <section class="burp" id="burp" hidden aria-live="polite">
+    <div class="burp-top">
+      <div>
+        <div class="label" id="burp-label">Hora de arrotar</div>
+        <div class="clock" id="burp-clock">20:00</div>
+      </div>
+      <span class="muted num" style="font-size:.85rem" id="burp-since"></span>
+    </div>
+    <div class="bar"><span id="burp-fill" style="width:0%"></span></div>
+    <div class="burp-btns">
+      <button class="btn ghost" type="button" id="burp-stop">Parar</button>
+      <button class="btn ghost" type="button" id="burp-restart">Recomeçar</button>
+    </div>
   </section>
 
   <section class="card" id="period">
@@ -239,7 +275,9 @@ textarea{resize:vertical;min-height:56px}
     <div class="split">
       <div class="split-legend"><span class="p" id="sp-l">Peito 0</span><span class="m" id="sm-l">Mamadeira 0</span></div>
       <div class="split-bar" aria-hidden="true"><span class="sp" id="sp-b" style="width:0%"></span><span class="sm" id="sm-b" style="width:0%"></span></div>
+      <div class="qual-leg"><span><i style="background:var(--breast)"></i><span id="q-s">0</span> satisfatório</span><span><i style="background:var(--breast-mid)"></i><span id="q-m">0</span> médio</span><span><i style="background:var(--breast-low)"></i><span id="q-p">0</span> pouco</span></div>
       <div class="verdict" id="verdict">Sem mamadas registradas neste período.</div>
+      <p class="hint">No quadro, mamada média conta como meia mamada e pouca como um quarto.</p>
     </div>
 
     <div class="stats">
@@ -287,11 +325,30 @@ textarea{resize:vertical;min-height:56px}
       <input type="number" id="f-ml" inputmode="numeric" min="1" max="400" step="1" placeholder="Ex.: 30">
       <div class="quick" id="f-ml-quick"></div>
     </div>
+    <div id="f-breast" class="field" hidden>
+      <span>Como foi a mamada?</span>
+      <div class="seg" id="f-qual"><button type="button" data-v="s">Satisfatório</button><button type="button" data-v="m">Médio</button><button type="button" data-v="p">Pouco</button></div>
+    </div>
     <label class="field"><span>Horário</span><input type="datetime-local" id="f-at" required></label>
+    <label id="f-burp-row" style="display:flex;gap:10px;align-items:center;font-weight:700;font-size:.9rem"><input type="checkbox" id="f-burp" style="width:auto" checked> Iniciar cronômetro de arroto</label>
     <label class="field"><span>Observação <span class="muted" style="font-weight:600">(opcional)</span></span><textarea id="f-nota" maxlength="200" placeholder="Ex.: sobrou um pouco, regurgitou"></textarea></label>
     <div class="err" id="f-err" hidden></div>
     <button class="btn primary" type="submit" id="f-save">Salvar</button>
   </form>
+</div>
+
+<!-- Peito: como foi -->
+<div class="sheet-bg" id="q-bg" hidden>
+  <div class="sheet">
+    <div class="sheet-head"><h2>Como foi a mamada no peito?</h2><button type="button" class="mini" id="q-close">Fechar</button></div>
+    <div class="qual-btns" id="q-btns">
+      <button type="button" class="qbtn" data-q="s">Satisfatório<small>mamou bem</small></button>
+      <button type="button" class="qbtn" data-q="m">Médio<small>mamou menos que o normal</small></button>
+      <button type="button" class="qbtn" data-q="p">Pouco<small>quase não mamou</small></button>
+    </div>
+    <label style="display:flex;gap:10px;align-items:center;font-weight:700;font-size:.9rem"><input type="checkbox" id="q-burp" style="width:auto" checked> Iniciar cronômetro de arroto</label>
+    <p class="muted" style="margin:0;font-size:.82rem">Registra agora, às <span id="q-now" class="num"></span>. Para outro horário, use "+ Registrar neste dia".</p>
+  </div>
 </div>
 
 <!-- Ajustes -->
@@ -301,6 +358,8 @@ textarea{resize:vertical;min-height:56px}
     <label class="field"><span>Dar mamadeira a cada</span><select id="c-int"></select></label>
     <label class="field"><span>Margem para contar como "no horário"</span>
       <select id="c-tol"><option value="10">10 minutos</option><option value="15">15 minutos</option><option value="20">20 minutos</option><option value="30">30 minutos</option></select></label>
+    <label class="field"><span>Tempo de arroto</span>
+      <select id="c-burp"><option value="10">10 minutos</option><option value="15">15 minutos</option><option value="20">20 minutos</option><option value="25">25 minutos</option><option value="30">30 minutos</option></select></label>
     <p class="muted" style="margin:0;font-size:.85rem">O novo intervalo vale para as próximas mamadeiras. As já registradas continuam avaliadas pelo intervalo que valia na época.</p>
     <button class="btn primary" type="submit">Salvar ajuste</button>
   </form>
@@ -356,9 +415,13 @@ function periodLabel(p){
 }
 
 /* ---------- análise ---------- */
+const QW = {s:1, m:.5, p:.25}, QN = {s:"Satisfatório", m:"Médio", p:"Pouco"};
 function tally(list){
-  const r = {p:0, m:0, ml:0};
-  for (const f of list){ if (f.tipo==="mamadeira"){ r.m++; r.ml += +f.ml||0; } else if (f.tipo==="peito") r.p++; }
+  const r = {p:0, m:0, ml:0, qs:0, qm:0, qp:0, pw:0};
+  for (const f of list){
+    if (f.tipo==="mamadeira"){ r.m++; r.ml += +f.ml||0; }
+    else if (f.tipo==="peito"){ r.p++; const q = QW[f.qual] ? f.qual : "s"; r["q"+q]++; r.pw += QW[q]; }
+  }
   return r;
 }
 // avalia cada mamadeira em relação à anterior; retorna Map id -> {gap, cls}
@@ -441,7 +504,9 @@ function renderHero(){
 }
 
 /* ---------- período ---------- */
-function splitHTML(p, m){ const tot = p+m; return tot ? `<span class="sp" style="width:${p/tot*100}%"></span><span class="sm" style="width:${m/tot*100}%"></span>` : ""; }
+function splitHTML(t){ const tot = t.pw + t.m; if (!tot) return "";
+  const w = v => (v/tot*100)+"%";
+  return `<span class="qs" style="width:${w(t.qs)}"></span><span class="qm" style="width:${w(t.qm*.5)}"></span><span class="qp" style="width:${w(t.qp*.25)}"></span><span class="sm" style="width:${w(t.m)}"></span>`; }
 
 function renderPeriod(){
   const p = period(), now = Date.now();
@@ -450,12 +515,18 @@ function renderPeriod(){
   $("next").disabled = p.e > now;
   const list = S.range, t = tally(list), tot = t.p + t.m;
 
-  $("sp-l").textContent = "Peito "+t.p+(tot?" · "+Math.round(t.p/tot*100)+"%":"");
-  $("sm-l").textContent = "Mamadeira "+t.m+(tot?" · "+Math.round(t.m/tot*100)+"%":"");
-  $("sp-b").style.width = tot ? (t.p/tot*100)+"%" : "0%"; $("sm-b").style.width = tot ? (t.m/tot*100)+"%" : "0%";
+  const wt = t.pw + t.m;
+  $("sp-l").textContent = "Peito "+t.p+(wt?" · "+Math.round(t.pw/wt*100)+"%":"");
+  $("sm-l").textContent = "Mamadeira "+t.m+(wt?" · "+Math.round(t.m/wt*100)+"%":"");
+  document.querySelector(".split-bar").innerHTML = splitHTML(t);
+  $("q-s").textContent = t.qs; $("q-m").textContent = t.qm; $("q-p").textContent = t.qp;
   const v = $("verdict");
   if (!tot) v.textContent = "Sem mamadas registradas neste período.";
-  else { const dp = t.p/tot; v.textContent = dp >= .6 ? "Mamou mais no peito neste período." : dp <= .4 ? "Mamou mais na mamadeira neste período." : "Peito e mamadeira bem equilibrados neste período."; }
+  else {
+    const dp = t.pw/wt; let txt = dp >= .6 ? "Mamou mais no peito neste período." : dp <= .4 ? "Mamou mais na mamadeira neste período." : "Peito e mamadeira bem equilibrados neste período.";
+    if (t.p >= 3 && (t.qm + t.qp)/t.p >= .5) txt += " Metade ou mais das mamadas no peito foram médias ou poucas.";
+    v.textContent = txt;
+  }
 
   // dias decorridos com pelo menos um registro possível
   const end = Math.min(p.e, sod(now)+DAY);
@@ -499,7 +570,7 @@ function renderPeriod(){
       const tt = tally(byDay.get(k)||[]), fut = k>today, emp = !(tt.p+tt.m);
       h += `<button type="button" class="cell${fut?" fut":""}${emp?" empty-day":""}${k===today?" today":""}" data-day="${k}" aria-pressed="${S.sel===k}" ${fut?"disabled":""} aria-label="Dia ${new Date(k).getDate()}: ${tt.p} peito, ${tt.m} mamadeiras">
         <span class="dn">${new Date(k).getDate()}</span>
-        ${emp?"":`<span class="mini-split">${splitHTML(tt.p,tt.m)}</span><span class="cnt"><span class="p">${tt.p}</span> · <span class="m">${tt.m}</span></span>`}</button>`;
+        ${emp?"":`<span class="mini-split">${splitHTML(tt)}</span><span class="cnt"><span class="p">${tt.p}</span> · <span class="m">${tt.m}</span></span>`}</button>`;
     }
     viz.innerHTML = h + `</div>`;
     $("viz-hint").textContent = "Em cada dia: peito (rosa) · mamadeira (azul). Toque num dia para ver os detalhes.";
@@ -532,7 +603,7 @@ function renderDay(){
     const isM = f.tipo==="mamadeira", g = gm.get(f.id);
     const gapTxt = g ? `<span class="gap ${g.cls}">${dur(g.gap)} depois da anterior · ${g.cls==="o"?"no horário":g.cls==="a"?"antes do intervalo":"passou do intervalo"}</span>` : "";
     return `<div class="entry" data-id="${esc(f.id)}"><span class="t">${hm(f.at)}</span>
-      <div class="dd"><span>${isM?`<span class="chip m">Mamadeira</span><b class="num">${f.ml||0} ml</b>`:`<span class="chip p">Peito</span>`}</span>${gapTxt}${f.nota?`<span class="nt">${esc(f.nota)}</span>`:""}</div>
+      <div class="dd"><span>${isM?`<span class="chip m">Mamadeira</span><b class="num">${f.ml||0} ml</b>`:`<span class="chip p">Peito</span>${QN[f.qual]?`<span class="qtag ${f.qual}">${QN[f.qual]}</span>`:""}`}</span>${gapTxt}${f.nota?`<span class="nt">${esc(f.nota)}</span>`:""}</div>
       <div class="entry-btns"><button type="button" class="mini" data-act="edit">Editar</button><button type="button" class="mini del" data-act="del">Apagar</button></div>
       ${S.confirmId===f.id?`<div class="confirm"><span>Apagar este registro?</span><button type="button" class="btn danger" data-act="del-yes" style="padding:6px 12px">Apagar</button><button type="button" class="btn ghost" data-act="del-no" style="padding:6px 12px">Cancelar</button></div>`:""}
     </div>`;
@@ -573,18 +644,63 @@ $("entries").addEventListener("click", async e=>{
 });
 function fail(){ $("foot").textContent = "Não foi possível salvar agora. Confira a conexão e tente de novo."; $("foot").style.color = "var(--late)"; }
 
+/* ---------- cronômetro de arroto (sincronizado, sem som) ---------- */
+S.burp = null; let wake = null;
+const burpMin = () => +S.cfg.arrotoMin || 20;
+async function keepAwake(on){
+  try{ if (on && !wake && navigator.wakeLock){ wake = await navigator.wakeLock.request("screen"); wake.addEventListener("release", ()=>{ wake = null; }); }
+       else if (!on && wake){ await wake.release(); wake = null; } }catch(e){ wake = null; }
+}
+function putBurp(b){
+  S.burp = b; renderBurp();
+  if (db) db.doc("config/arroto").set(b || {ativo:false}).catch(fail);
+}
+function startBurp(at){ putBurp({ativo:true, inicio: at || Date.now(), min: burpMin()}); }
+function renderBurp(){
+  const b = S.burp, now = Date.now();
+  $("burp-dur").textContent = burpMin()+" min";
+  const on = !!(b && b.ativo && b.inicio), total = (on ? (+b.min||burpMin()) : burpMin())*MIN;
+  const end = on ? b.inicio + total : 0;
+  const show = on && now < end + 60*MIN;      // some sozinho 1h depois de acabar
+  $("burp").hidden = !show; $("burp-start").hidden = show;
+  if (!show){ keepAwake(false); return; }
+  const left = end - now, done = left <= 0;
+  $("burp").classList.toggle("done", done);
+  $("burp-since").textContent = "começou às "+hm(b.inicio);
+  $("burp-fill").style.width = Math.min(100, (now-b.inicio)/total*100).toFixed(1)+"%";
+  if (done){
+    $("burp-label").textContent = "Arroto"; $("burp-clock").textContent = "Tempo concluído";
+    $("burp-stop").textContent = "Fechar"; keepAwake(false);
+  } else {
+    const sec = Math.ceil(left/1000);
+    $("burp-label").textContent = "Hora de arrotar"; $("burp-clock").textContent = pad(Math.floor(sec/60))+":"+pad(sec%60);
+    $("burp-stop").textContent = "Parar"; keepAwake(true);
+  }
+}
+$("burp-start").addEventListener("click", ()=>startBurp());
+$("burp-restart").addEventListener("click", ()=>startBurp());
+$("burp-stop").addEventListener("click", ()=>putBurp(null));
+document.addEventListener("visibilitychange", ()=>{ if (!document.hidden) renderBurp(); });
+setInterval(renderBurp, 1000);
+
 /* toast com desfazer */
 let toastT = null, undoId = null;
 function toast(msg, id){ $("toast-t").textContent = msg; undoId = id; $("toast-undo").hidden = !id; $("toast").hidden = false; clearTimeout(toastT); toastT = setTimeout(()=>{ $("toast").hidden = true; }, 6000); }
 $("toast-undo").addEventListener("click", async ()=>{ $("toast").hidden = true; if (undoId){ try{ await delFeed(undoId); }catch(x){ fail(); } } });
 
-$("add-breast").addEventListener("click", async ()=>{
-  const id = newId(), at = Date.now();
-  try{ await putFeed(id, {tipo:"peito", at, nota:""}); toast("Peito registrado às "+hm(at), id); }catch(x){ fail(); }
+$("add-breast").addEventListener("click", ()=>{ $("q-now").textContent = hm(Date.now()); $("q-bg").hidden = false; });
+$("q-close").addEventListener("click", ()=>{ $("q-bg").hidden = true; });
+$("q-bg").addEventListener("click", e=>{ if (e.target===$("q-bg")) $("q-bg").hidden = true; });
+$("q-btns").addEventListener("click", async e=>{
+  const b = e.target.closest("button[data-q]"); if (!b) return;
+  const id = newId(), at = Date.now(), q = b.dataset.q;
+  $("q-bg").hidden = true;
+  if ($("q-burp").checked) startBurp(at);
+  try{ await putFeed(id, {tipo:"peito", at, qual:q, nota:""}); toast("Peito ("+QN[q].toLowerCase()+") às "+hm(at), id); }catch(x){ fail(); }
 });
 
 /* formulário */
-let form = { tipo:"mamadeira", editId:null, int:null };
+let form = { tipo:"mamadeira", editId:null, int:null, qual:"" };
 function setSeg(el, v){ for (const b of el.children) b.setAttribute("aria-pressed", String(b.dataset.v===v)); }
 function quickMl(){
   const recent = [...new Set(S.recent.filter(f=>f.tipo==="mamadeira"&&f.ml).map(f=>+f.ml))].slice(0,3);
@@ -592,18 +708,21 @@ function quickMl(){
   const cur = +$("f-ml").value;
   $("f-ml-quick").innerHTML = vals.map(v=>`<button type="button" data-ml="${v}" aria-pressed="${cur===v}">${v} ml</button>`).join("");
 }
-function setTipo(t){ form.tipo = t; setSeg($("f-tipo"), t); $("f-bottle").hidden = t!=="mamadeira"; $("f-save").className = "btn "+(t==="peito"?"rose":"primary"); }
+function setTipo(t){ form.tipo = t; setSeg($("f-tipo"), t); $("f-bottle").hidden = t!=="mamadeira"; $("f-breast").hidden = t!=="peito"; $("f-save").className = "btn "+(t==="peito"?"rose":"primary"); }
 function openForm(tipo, f, at){
   form.editId = f ? f.id : null; form.int = f && f.int ? f.int : null;
   $("form-title").textContent = f ? "Editar registro" : "Nova mamada";
   $("f-at").value = toInput(f ? f.at : (at ?? Date.now()));
   $("f-ml").value = f && f.ml ? f.ml : "";
   $("f-nota").value = f && f.nota ? f.nota : "";
+  form.qual = f && f.qual ? f.qual : ""; setSeg($("f-qual"), form.qual);
+  $("f-burp-row").hidden = !!f; $("f-burp").checked = !f && (at==null);
   $("f-err").hidden = true; quickMl(); setTipo(tipo);
   $("form-bg").hidden = false;
   if (tipo==="mamadeira") setTimeout(()=>$("f-ml").focus(), 60);
 }
 function closeForm(){ $("form-bg").hidden = true; }
+$("f-qual").addEventListener("click", e=>{ const b = e.target.closest("button"); if (b){ form.qual = b.dataset.v; setSeg($("f-qual"), form.qual); } });
 $("f-tipo").addEventListener("click", e=>{ const b = e.target.closest("button"); if (b) setTipo(b.dataset.v); });
 $("f-ml-quick").addEventListener("click", e=>{ const b = e.target.closest("button"); if (b){ $("f-ml").value = b.dataset.ml; quickMl(); } });
 $("f-ml").addEventListener("input", quickMl);
@@ -620,7 +739,11 @@ $("form").addEventListener("submit", async e=>{
     const ml = parseInt($("f-ml").value, 10);
     if (!(ml>=1 && ml<=400)) return err("Informe quantos ml de fórmula foram dados (entre 1 e 400).");
     data.ml = ml; data.int = form.int || S.cfg.intervalMin;
+  } else {
+    if (!form.qual && !form.editId) return err("Escolha como foi a mamada: satisfatório, médio ou pouco.");
+    if (form.qual) data.qual = form.qual;
   }
+  if (!form.editId && $("f-burp").checked && Date.now() - at < 30*MIN) startBurp(at);
   $("f-save").disabled = true;
   try { await putFeed(form.editId || newId(), data); closeForm(); toast((form.editId?"Registro atualizado":(form.tipo==="mamadeira"?"Mamadeira de "+data.ml+" ml registrada":"Peito registrado"))+" às "+hm(at), null); }
   catch(x){ err("Não foi possível salvar. Confira a conexão e tente de novo."); }
@@ -634,13 +757,13 @@ $("add-past").addEventListener("click", ()=>{
 
 /* ajustes */
 (function(){ const sel = $("c-int"); for (let m=60;m<=360;m+=15){ const o = document.createElement("option"); o.value = m; const h = Math.floor(m/60), r = m%60; o.textContent = h+(h===1?" hora":" horas")+(r?" e "+r+" min":""); sel.appendChild(o); } })();
-$("open-cfg").addEventListener("click", ()=>{ $("c-int").value = S.cfg.intervalMin; $("c-tol").value = S.cfg.tolMin||20; $("cfg-bg").hidden = false; });
+$("open-cfg").addEventListener("click", ()=>{ $("c-int").value = S.cfg.intervalMin; $("c-tol").value = S.cfg.tolMin||20; $("c-burp").value = S.cfg.arrotoMin||20; $("cfg-bg").hidden = false; });
 $("cfg-close").addEventListener("click", ()=>{ $("cfg-bg").hidden = true; });
 $("cfg-bg").addEventListener("click", e=>{ if (e.target===$("cfg-bg")) $("cfg-bg").hidden = true; });
 $("cfg").addEventListener("submit", async e=>{ e.preventDefault();
-  const cfg = { intervalMin: parseInt($("c-int").value,10)||180, tolMin: parseInt($("c-tol").value,10)||20 };
+  const cfg = { intervalMin: parseInt($("c-int").value,10)||180, tolMin: parseInt($("c-tol").value,10)||20, arrotoMin: parseInt($("c-burp").value,10)||20 };
   try{ await putCfg(cfg); $("cfg-bg").hidden = true; }catch(x){ fail(); } });
-document.addEventListener("keydown", e=>{ if (e.key==="Escape"){ closeForm(); $("cfg-bg").hidden = true; } });
+document.addEventListener("keydown", e=>{ if (e.key==="Escape"){ closeForm(); $("q-bg").hidden = true; $("cfg-bg").hidden = true; } });
 
 /* ---------- início ---------- */
 renderAll();
@@ -660,7 +783,8 @@ if (!window.FIREBASE_CONFIG || !window.FIREBASE_CONFIG.apiKey || String(window.F
     renderHero(); $("sync").className = "sync"+(S.live?" on":""); $("sync-t").textContent = S.live ? "Sincronizado" : "Sem internet · salvo no aparelho";
     scheduleReload();
   }, noAccess);
-  db.doc("config/geral").onSnapshot(s=>{ if (s.exists){ S.cfg = Object.assign({intervalMin:180, tolMin:20}, s.data()); renderHero(); renderPeriod(); renderDay(); } }, ()=>{});
+  db.doc("config/geral").onSnapshot(s=>{ if (s.exists){ S.cfg = Object.assign({intervalMin:180, tolMin:20, arrotoMin:20}, s.data()); renderHero(); renderBurp(); renderPeriod(); renderDay(); } }, ()=>{});
+  db.doc("config/arroto").onSnapshot(s=>{ S.burp = s.exists ? s.data() : null; renderBurp(); }, ()=>{});
   loadPeriod();
 }
 
