@@ -1,10 +1,9 @@
-// Cole aqui os dados do seu projeto Firebase (Console do Firebase > Configurações do projeto > Seus apps > Configuração do SDK).
-// Troque cada "COLE_AQUI" pelo valor correspondente, mantendo as aspas.
+// Dados do projeto Firebase "amamentacaoethan".
 window.FIREBASE_CONFIG = {
-  apiKey: "COLE_AQUI",
-  authDomain: "COLE_AQUI",
-  projectId: "COLE_AQUI",
-  storageBucket: "COLE_AQUI",
-  messagingSenderId: "COLE_AQUI",
-  appId: "COLE_AQUI"
+  apiKey: "AIzaSyA9rBOotFiswffJmCDVT-YRyA_Gv2xHaFc",
+  authDomain: "amamentacaoethan.firebaseapp.com",
+  projectId: "amamentacaoethan",
+  storageBucket: "amamentacaoethan.firebasestorage.app",
+  messagingSenderId: "498004776316",
+  appId: "1:498004776316:web:822174b07ca4ddc034c0f9"
 };
