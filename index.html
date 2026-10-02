@@ -203,6 +203,23 @@ textarea{resize:vertical;min-height:56px}
 .qbtn[data-q="m"]{background:var(--breast-soft)}
 .qtag{font-size:.75rem;font-weight:800;margin-left:2px}
 .qtag.s{color:var(--ok)} .qtag.m{color:var(--warn)} .qtag.p{color:var(--late)}
+/* Abas */
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px;position:sticky;top:env(safe-area-inset-top,0px);z-index:10;box-shadow:var(--shadow)}
+.tabs button{border:none;background:transparent;border-radius:10px;padding:10px;font-weight:800;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.tab{display:flex;flex-direction:column;gap:16px}
+/* Relatório */
+.rep-dates{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rep-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.rep-table{width:100%;border-collapse:collapse;font-size:.82rem;font-variant-numeric:tabular-nums;min-width:440px}
+.rep-table th{background:var(--surface-2);text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:8px}
+.rep-table td{padding:7px 8px;border-top:1px solid var(--line)}
+.rep-table td.r,.rep-table th.r{text-align:right}
+.rep-kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+.rep-kv div{display:flex;flex-direction:column;min-width:0}
+.rep-kv b{font-family:var(--f-display);font-size:1.2rem;font-variant-numeric:tabular-nums}
+.rep-kv span{font-size:.75rem;color:var(--muted)}
+.rep-actions{display:flex;gap:8px;flex-wrap:wrap}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 10px 10px 16px;display:flex;gap:12px;align-items:center;font-weight:700;font-size:.9rem;z-index:30;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .toast button{background:transparent;border:1px solid currentColor;color:inherit;border-radius:9px;padding:5px 10px;font-weight:800;font-size:.8rem}
 .foot{font-size:.75rem;color:var(--muted);text-align:center;margin:0}
@@ -220,6 +237,12 @@ textarea{resize:vertical;min-height:56px}
     </div>
   </header>
 
+  <nav class="tabs" role="tablist">
+    <button type="button" role="tab" id="tab-btn-diario" aria-selected="true">Diário</button>
+    <button type="button" role="tab" id="tab-btn-rel" aria-selected="false">Relatório</button>
+  </nav>
+
+  <div class="tab" id="tab-diario">
   <section class="hero" aria-live="polite">
     <div class="hero-row">
       <div>
@@ -309,6 +332,42 @@ textarea{resize:vertical;min-height:56px}
     <div class="entries" id="entries"></div>
     <button class="mini" type="button" id="add-past" style="align-self:flex-start">+ Registrar neste dia</button>
   </section>
+
+  </div>
+
+  <div class="tab" id="tab-rel" hidden>
+    <section class="card">
+      <h2>Relatório para a médica</h2>
+      <div class="quick" id="r-presets">
+        <button type="button" data-d="7">Últimos 7 dias</button><button type="button" data-d="15">Últimos 15 dias</button><button type="button" data-d="30">Últimos 30 dias</button><button type="button" data-d="mes">Este mês</button><button type="button" data-d="tudo">Desde o início</button>
+      </div>
+      <div class="rep-dates">
+        <label class="field"><span>De</span><input type="date" id="r-de"></label>
+        <label class="field"><span>Até</span><input type="date" id="r-ate"></label>
+      </div>
+      <label class="field"><span>Nome do bebê <span class="muted" style="font-weight:600">(aparece no PDF)</span></span><input type="text" id="r-nome" maxlength="60" placeholder="Ex.: Ethan"></label>
+      <label class="field"><span>Observações para a médica <span class="muted" style="font-weight:600">(opcional)</span></span><textarea id="r-obs" maxlength="800" placeholder="Ex.: tem regurgitado depois da mamadeira da noite"></textarea></label>
+      <label style="display:flex;gap:10px;align-items:center;font-weight:700;font-size:.9rem"><input type="checkbox" id="r-lista" style="width:auto" checked> Incluir a lista de todas as mamadas</label>
+      <div class="err" id="r-err" hidden></div>
+      <button class="btn primary" type="button" id="r-gerar">Gerar relatório</button>
+    </section>
+
+    <section class="card" id="r-out" hidden>
+      <div class="day-head"><h2 id="r-titulo">Resumo</h2><span class="muted num" style="font-size:.82rem" id="r-per"></span></div>
+      <div class="split">
+        <div class="split-legend"><span class="p" id="r-sp">Peito</span><span class="m" id="r-sm">Mamadeira</span></div>
+        <div class="split-bar" id="r-bar" aria-hidden="true"></div>
+      </div>
+      <div class="rep-kv" id="r-kv"></div>
+      <h3>Dia a dia</h3>
+      <div class="rep-table-wrap"><table class="rep-table" id="r-tab"></table></div>
+      <div class="rep-actions">
+        <button class="btn primary" type="button" id="r-pdf">Baixar PDF</button>
+        <button class="btn rose" type="button" id="r-share" hidden>Enviar PDF</button>
+      </div>
+      <p class="hint" id="r-hint">No iPhone, "Enviar PDF" abre as opções para mandar por WhatsApp, e-mail ou salvar em Arquivos.</p>
+    </section>
+  </div>
 
   <p class="foot" id="foot">Os registros ficam salvos na nuvem e aparecem em todos os celulares com o app.</p>
 </div>
@@ -446,7 +505,7 @@ function localRecent(){ const c = Date.now()-4*DAY; S.recent = S.all.filter(f=>f
 async function fetchRange(s, e){
   if (!db) return S.all.filter(f=>f.at>=s && f.at<e);
   const chunks = [];
-  if (e - s > 40*DAY){ const d = new Date(s); for (let m=0;m<12;m++){ chunks.push([new Date(d.getFullYear(), m, 1).getTime(), new Date(d.getFullYear(), m+1, 1).getTime()]); } }
+  if (e - s > 40*DAY){ let a = s; while (a < e){ const d = new Date(a), b = Math.min(e, new Date(d.getFullYear(), d.getMonth()+1, 1).getTime()); chunks.push([a, b]); a = b; } }
   else chunks.push([s, e]);
   const snaps = await Promise.all(chunks.map(([a,b]) => db.collection("feeds").where("at",">=",a).where("at","<",b).orderBy("at","asc").limit(1000).get()));
   return snaps.flatMap(sn => sn.docs.map(d => Object.assign({id:d.id}, d.data())));
@@ -764,6 +823,208 @@ $("cfg").addEventListener("submit", async e=>{ e.preventDefault();
   const cfg = { intervalMin: parseInt($("c-int").value,10)||180, tolMin: parseInt($("c-tol").value,10)||20, arrotoMin: parseInt($("c-burp").value,10)||20 };
   try{ await putCfg(cfg); $("cfg-bg").hidden = true; }catch(x){ fail(); } });
 document.addEventListener("keydown", e=>{ if (e.key==="Escape"){ closeForm(); $("q-bg").hidden = true; $("cfg-bg").hidden = true; } });
+
+/* ---------- abas ---------- */
+function showTab(t){
+  const rel = t==="rel";
+  $("tab-diario").hidden = rel; $("tab-rel").hidden = !rel;
+  $("tab-btn-diario").setAttribute("aria-selected", String(!rel)); $("tab-btn-rel").setAttribute("aria-selected", String(rel));
+  if (rel && !$("r-de").value) preset("30");
+  if (rel && !$("r-nome").value && S.cfg.nomeBebe) $("r-nome").value = S.cfg.nomeBebe;
+  window.scrollTo(0,0);
+}
+$("tab-btn-diario").addEventListener("click", ()=>showTab("diario"));
+$("tab-btn-rel").addEventListener("click", ()=>showTab("rel"));
+
+/* ---------- relatório ---------- */
+const dIn = ms => { const d = new Date(ms); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
+const dBR = ms => { const d = new Date(ms); return pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear(); };
+const dBRs = ms => { const d = new Date(ms); return pad(d.getDate())+"/"+pad(d.getMonth()+1); };
+const parseDate = v => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v||""); return m ? new Date(+m[1], +m[2]-1, +m[3]).getTime() : NaN; };
+function preset(k){
+  const today = sod(Date.now()); let a = today;
+  if (k==="mes"){ const d = new Date(today); a = new Date(d.getFullYear(), d.getMonth(), 1).getTime(); }
+  else if (k==="tudo"){ a = null; }
+  else a = addDays(today, -(+k-1));
+  $("r-ate").value = dIn(today);
+  if (a!==null) $("r-de").value = dIn(a);
+  else { $("r-de").value = dIn(addDays(today,-29)); firstFeed().then(f=>{ if (f) $("r-de").value = dIn(f); }); }
+  for (const b of $("r-presets").children) b.setAttribute("aria-pressed", String(b.dataset.d===k));
+}
+async function firstFeed(){
+  try{
+    if (!db){ const a = S.all.slice().sort((x,y)=>x.at-y.at)[0]; return a ? a.at : null; }
+    const sn = await db.collection("feeds").orderBy("at","asc").limit(1).get();
+    return sn.empty ? null : sn.docs[0].data().at;
+  }catch(e){ return null; }
+}
+$("r-presets").addEventListener("click", e=>{ const b = e.target.closest("button"); if (b) preset(b.dataset.d); });
+for (const id of ["r-de","r-ate"]) $(id).addEventListener("input", ()=>{ for (const b of $("r-presets").children) b.setAttribute("aria-pressed","false"); });
+
+let REP = null;
+function buildReport(list, s, e){
+  list = list.slice().sort((a,b)=>a.at-b.at);
+  const t = tally(list), g = gaps(list), days = [];
+  for (let k=s; k<e; k=addDays(k,1)){
+    const items = list.filter(f=>sod(f.at)===k), tt = tally(items);
+    const gg = items.filter(f=>g.has(f.id)).map(f=>g.get(f.id).gap);
+    days.push(Object.assign({k, gapAvg: gg.length ? gg.reduce((a,b)=>a+b,0)/gg.length : null}, tt));
+  }
+  const gl = [...g.values()], c = {o:0,a:0,d:0}; let sum = 0; for (const x of gl){ c[x.cls]++; sum += x.gap; }
+  const nd = Math.max(1, days.length), wt = t.pw + t.m;
+  return { s, e, list, t, days, g, nd, c, ng: gl.length, gapAvg: gl.length ? sum/gl.length : null,
+    pctP: wt ? Math.round(t.pw/wt*100) : 0, pctM: wt ? Math.round(t.m/wt*100) : 0 };
+}
+function repKV(R){
+  const t = R.t, iv = dur(S.cfg.intervalMin);
+  return [
+    [t.p, "mamadas no peito"], [t.qs+" / "+t.qm+" / "+t.qp, "satisfatório / médio / pouco"],
+    [t.m, "mamadeiras"], [t.ml.toLocaleString("pt-BR")+" ml", "fórmula no período"],
+    [Math.round(t.ml/R.nd)+" ml", "fórmula por dia (média)"], [t.m ? Math.round(t.ml/t.m)+" ml" : "–", "por mamadeira (média)"],
+    [fmt((t.p+t.m)/R.nd), "mamadas por dia (média)"], [R.gapAvg!=null ? dur(R.gapAvg) : "–", "intervalo médio entre mamadeiras"],
+    [R.ng ? Math.round(R.c.o/R.ng*100)+"%" : "–", "mamadeiras no horário (meta "+iv+")"], [R.c.a+" antes · "+R.c.d+" depois", "fora do horário"]
+  ];
+}
+$("r-gerar").addEventListener("click", async ()=>{
+  const err = m => { $("r-err").textContent = m; $("r-err").hidden = false; };
+  $("r-err").hidden = true;
+  const s = parseDate($("r-de").value), e0 = parseDate($("r-ate").value);
+  if (!isFinite(s) || !isFinite(e0)) return err("Escolha as datas de início e fim.");
+  if (e0 < s) return err("A data final é antes da inicial.");
+  if (e0 - s > 366*DAY) return err("Escolha um período de até 1 ano.");
+  const e = addDays(e0, 1);
+  const nome = $("r-nome").value.trim();
+  if (nome !== (S.cfg.nomeBebe||"")) putCfg(Object.assign({}, S.cfg, {nomeBebe: nome}));
+  $("r-gerar").disabled = true; $("r-gerar").textContent = "Gerando…";
+  try {
+    const list = await fetchRange(s, e);
+    REP = buildReport(list, s, e);
+    REP.nome = nome; REP.obs = $("r-obs").value.trim(); REP.lista = $("r-lista").checked;
+    renderReport(REP);
+  } catch(x){ err("Não foi possível buscar os registros. Confira a conexão e tente de novo."); }
+  $("r-gerar").disabled = false; $("r-gerar").textContent = "Gerar relatório";
+});
+function renderReport(R){
+  $("r-out").hidden = false;
+  $("r-titulo").textContent = R.nome ? "Resumo de "+R.nome : "Resumo";
+  $("r-per").textContent = dBR(R.s)+" a "+dBR(R.e-1)+" · "+R.nd+(R.nd===1?" dia":" dias");
+  $("r-sp").textContent = "Peito "+R.pctP+"%"; $("r-sm").textContent = "Mamadeira "+R.pctM+"%";
+  $("r-bar").innerHTML = splitHTML(R.t);
+  $("r-kv").innerHTML = repKV(R).map(([v,l])=>`<div><b>${esc(String(v))}</b><span>${esc(l)}</span></div>`).join("");
+  $("r-tab").innerHTML = `<thead><tr><th>Dia</th><th class="r">Peito</th><th class="r">S/M/P</th><th class="r">Mamad.</th><th class="r">Fórmula</th><th class="r">Interv. médio</th></tr></thead><tbody>`+
+    R.days.map(d=>`<tr><td>${WD[new Date(d.k).getDay()]} ${dBRs(d.k)}</td><td class="r">${d.p}</td><td class="r">${d.qs}/${d.qm}/${d.qp}</td><td class="r">${d.m}</td><td class="r">${d.ml} ml</td><td class="r">${d.gapAvg!=null?dur(d.gapAvg):"–"}</td></tr>`).join("")+`</tbody>`;
+  if (!R.list.length) $("r-hint").textContent = "Nenhuma mamada registrada neste período.";
+  try{ const f = new File([new Blob(["x"])], "t.pdf", {type:"application/pdf"}); $("r-share").hidden = !(navigator.canShare && navigator.canShare({files:[f]})); }catch(e){ $("r-share").hidden = true; }
+  $("r-out").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+/* PDF */
+function loadScript(src){ return new Promise((ok, bad)=>{ if (document.querySelector(`script[src="${src}"]`)) return ok(); const sc = document.createElement("script"); sc.src = src; sc.onload = ok; sc.onerror = bad; document.head.appendChild(sc); }); }
+async function makePDF(R){
+  await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+  await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js");
+  const { jsPDF } = window.jspdf, doc = new jsPDF({unit:"pt", format:"a4"});
+  const W = doc.internal.pageSize.getWidth(), M = 40;
+  const ROSE = [182,74,115], BLUE = [47,103,201], INK = [27,34,50], MUT = [93,103,128], LINE = [218,224,236];
+  const ROSE2 = [217,139,168], ROSE3 = [239,201,215];
+  let y = M;
+  doc.setFont("helvetica","bold"); doc.setFontSize(18); doc.setTextColor(...INK);
+  doc.text("Relatório de alimentação"+(R.nome ? " - "+R.nome : ""), M, y+6); y += 26;
+  doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...MUT);
+  doc.text("Período: "+dBR(R.s)+" a "+dBR(R.e-1)+" ("+R.nd+(R.nd===1?" dia":" dias")+")   ·   Gerado em "+dBR(Date.now())+" às "+hm(Date.now()), M, y); y += 12;
+  doc.text("Intervalo combinado entre mamadeiras: "+dur(S.cfg.intervalMin)+" (tolerância de "+(S.cfg.tolMin||20)+" min)", M, y); y += 20;
+
+  // barra peito × mamadeira
+  doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...INK);
+  doc.text("Peito x mamadeira", M, y); y += 8;
+  const bw = W - 2*M, tot = R.t.pw + R.t.m; let x = M;
+  doc.setFillColor(...LINE); doc.roundedRect(M, y, bw, 12, 6, 6, "F");
+  if (tot){ [[R.t.qs, ROSE],[R.t.qm*.5, ROSE2],[R.t.qp*.25, ROSE3],[R.t.m, BLUE]].forEach(([v,c])=>{ const w = v/tot*bw; if (w>0){ doc.setFillColor(...c); doc.rect(x, y, w, 12, "F"); x += w; } }); }
+  y += 24; doc.setFont("helvetica","normal"); doc.setFontSize(9.5);
+  doc.setTextColor(...ROSE); doc.text("Peito "+R.pctP+"%  ("+R.t.p+" mamadas: "+R.t.qs+" satisfatórias, "+R.t.qm+" médias, "+R.t.qp+" poucas)", M, y);
+  doc.setTextColor(...BLUE); doc.text("Mamadeira "+R.pctM+"%  ("+R.t.m+")", W-M, y, {align:"right"}); y += 12;
+  doc.setTextColor(...MUT); doc.setFontSize(8.5);
+  doc.text("Na proporção, mamada no peito média conta como 1/2 e pouca como 1/4.", M, y); y += 14;
+
+  // resumo
+  doc.autoTable({ startY: y, margin:{left:M, right:M}, theme:"plain",
+    body: repKV(R).reduce((rows, kv, i)=>{ if (i%2===0) rows.push([kv[1], String(kv[0])]); else rows[rows.length-1].push(kv[1], String(kv[0])); return rows; }, []),
+    styles:{font:"helvetica", fontSize:9.5, textColor:INK, cellPadding:{top:4,bottom:4,left:4,right:4}, lineColor:LINE, lineWidth:{bottom:.5}},
+    columnStyles:{0:{textColor:MUT}, 1:{fontStyle:"bold", halign:"right"}, 2:{textColor:MUT}, 3:{fontStyle:"bold", halign:"right"}} });
+  y = doc.lastAutoTable.finalY + 18;
+
+  // gráfico de fórmula por dia
+  if (R.days.length >= 2 && R.days.length <= 62){
+    doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...INK); doc.text("Fórmula por dia (ml) e mamadas no peito", M, y); y += 10;
+    const H = 110, n = R.days.length, cw = bw/n, maxMl = Math.max(30, ...R.days.map(d=>d.ml));
+    const step = maxMl > 600 ? 200 : maxMl > 300 ? 100 : maxMl > 120 ? 50 : 30, top = Math.ceil(maxMl/step)*step;
+    doc.setDrawColor(...LINE); doc.setLineWidth(.5); doc.setFontSize(7); doc.setFont("helvetica","normal"); doc.setTextColor(...MUT);
+    for (let v=0; v<=top; v+=step){ const yy = y + H - v/top*H; doc.line(M, yy, W-M, yy); doc.text(String(v), M-4, yy+2, {align:"right"}); }
+    R.days.forEach((d,i)=>{
+      const cx = M + cw*i + cw/2, w = Math.min(14, cw*.6), h = d.ml/top*H;
+      if (h>0){ doc.setFillColor(...BLUE); doc.rect(cx-w/2, y+H-h, w, h, "F"); }
+      if (n <= 31 || i % 2 === 0){ doc.setTextColor(...MUT); doc.text(dBRs(d.k), cx, y+H+9, {align:"center"}); }
+      if (d.p){ doc.setTextColor(...ROSE); doc.text(String(d.p), cx, y+H+18, {align:"center"}); }
+    });
+    doc.setTextColor(...ROSE); doc.text("número rosa = mamadas no peito no dia", W-M, y+H+28, {align:"right"});
+    y += H + 40;
+  }
+
+  // dia a dia
+  doc.autoTable({ startY: y, margin:{left:M, right:M},
+    head:[["Dia","Peito","Satisf./Médio/Pouco","Mamadeiras","Fórmula","Intervalo médio"]],
+    body: R.days.map(d=>[WD[new Date(d.k).getDay()]+" "+dBRs(d.k), d.p, d.qs+" / "+d.qm+" / "+d.qp, d.m, d.ml+" ml", d.gapAvg!=null?dur(d.gapAvg):"-"]),
+    foot:[["Total", R.t.p, R.t.qs+" / "+R.t.qm+" / "+R.t.qp, R.t.m, R.t.ml+" ml", R.gapAvg!=null?dur(R.gapAvg):"-"]],
+    styles:{font:"helvetica", fontSize:9, textColor:INK, lineColor:LINE, lineWidth:.5},
+    headStyles:{fillColor:[245,247,251], textColor:MUT, fontStyle:"bold"}, footStyles:{fillColor:[245,247,251], textColor:INK, fontStyle:"bold"},
+    columnStyles:{1:{halign:"right"},2:{halign:"center"},3:{halign:"right"},4:{halign:"right"},5:{halign:"right"}} });
+  y = doc.lastAutoTable.finalY + 18;
+
+  // observações
+  if (R.obs){
+    if (y > 740){ doc.addPage(); y = M; }
+    doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...INK); doc.text("Observações dos pais", M, y); y += 14;
+    doc.setFont("helvetica","normal"); doc.setFontSize(10);
+    const lines = doc.splitTextToSize(R.obs, bw); doc.text(lines, M, y); y += lines.length*13 + 14;
+  }
+
+  // lista completa
+  if (R.lista && R.list.length){
+    doc.addPage();
+    doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor(...INK); doc.text("Todas as mamadas do período", M, M+6);
+    doc.autoTable({ startY: M+18, margin:{left:M, right:M},
+      head:[["Data","Hora","Tipo","Fórmula / como foi","Desde a mamadeira anterior","Observação"]],
+      body: R.list.map(f=>{ const isM = f.tipo==="mamadeira", gg = R.g.get(f.id);
+        return [dBRs(f.at), hm(f.at), isM?"Mamadeira":"Peito", isM ? (f.ml||0)+" ml" : (QN[f.qual]||"-"),
+          gg ? dur(gg.gap)+(gg.cls==="o"?" (no horário)":gg.cls==="a"?" (antes)":" (depois)") : "-", f.nota||""]; }),
+      styles:{font:"helvetica", fontSize:8.5, textColor:INK, lineColor:LINE, lineWidth:.5, overflow:"linebreak"},
+      headStyles:{fillColor:[245,247,251], textColor:MUT, fontStyle:"bold"},
+      columnStyles:{5:{cellWidth:120}},
+      didParseCell: h=>{ if (h.section==="body" && h.column.index===2){ h.cell.styles.textColor = h.cell.raw==="Peito" ? ROSE : BLUE; h.cell.styles.fontStyle = "bold"; } } });
+  }
+
+  // rodapé
+  const pages = doc.getNumberOfPages();
+  for (let i=1;i<=pages;i++){ doc.setPage(i); doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(...MUT);
+    doc.text("Diário de Mamadas · registrado pelos pais", M, 820); doc.text("Página "+i+" de "+pages, W-M, 820, {align:"right"}); }
+  const nomeArq = "relatorio-mamadas"+(R.nome?"-"+R.nome.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""):"")+"-"+dIn(R.s)+"-a-"+dIn(R.e-1)+".pdf";
+  return { doc, nomeArq };
+}
+async function pdfAction(share){
+  if (!REP) return;
+  const btn = share ? $("r-share") : $("r-pdf"), old = btn.textContent;
+  btn.disabled = true; btn.textContent = "Preparando PDF…";
+  try {
+    const { doc, nomeArq } = await makePDF(REP);
+    if (share){
+      const file = new File([doc.output("blob")], nomeArq, {type:"application/pdf"});
+      try { await navigator.share({files:[file], title:"Relatório de mamadas"}); } catch(e){ if (e && e.name!=="AbortError") doc.save(nomeArq); }
+    } else doc.save(nomeArq);
+  } catch(e){ $("r-hint").textContent = "Não foi possível gerar o PDF. Confira a internet na primeira vez que gerar e tente de novo."; }
+  btn.disabled = false; btn.textContent = old;
+}
+$("r-pdf").addEventListener("click", ()=>pdfAction(false));
+$("r-share").addEventListener("click", ()=>pdfAction(true));
 
 /* ---------- início ---------- */
 renderAll();
