@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Acesso livre: qualquer pessoa com o app consegue ver e registrar.
+    // Só as coleções do app são liberadas; o resto do banco continua fechado.
+    match /feeds/{id}  { allow read, write: if true; }
+    match /config/{id} { allow read, write: if true; }
+  }
+}
