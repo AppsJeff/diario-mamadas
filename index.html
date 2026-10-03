@@ -233,7 +233,7 @@ textarea{resize:vertical;min-height:56px}
     <h1>Diário de Mamadas</h1>
     <div class="top-r">
       <span class="sync" id="sync"><i></i><span id="sync-t">Carregando</span></span>
-      <button class="icon-btn" id="open-cfg" type="button" aria-label="Ajustar intervalo da mamadeira">a cada <span id="int-label" class="num">3h</span></button>
+      <button class="icon-btn" id="open-cfg" type="button" aria-label="Ajustar intervalo entre mamadas">a cada <span id="int-label" class="num">3h</span></button>
     </div>
   </header>
 
@@ -246,14 +246,14 @@ textarea{resize:vertical;min-height:56px}
   <section class="hero" aria-live="polite">
     <div class="hero-row">
       <div>
-        <div class="label">Próxima mamadeira</div>
+        <div class="label">Próxima mamada</div>
         <div class="big" id="next-time">--:--</div>
       </div>
       <span class="pill idle" id="status">Sem registros</span>
     </div>
     <div class="bar" id="bar"><span id="bar-fill" style="width:0%"></span></div>
     <div class="hero-meta">
-      <span id="last-info">Registre a primeira mamadeira para começar a contagem.</span>
+      <span id="last-info">Registre a primeira mamada para começar a contagem.</span>
       <span id="since" class="num"></span>
     </div>
     <div class="today">
@@ -265,8 +265,8 @@ textarea{resize:vertical;min-height:56px}
   </section>
 
   <section class="actions">
-    <button class="act breast" type="button" id="add-breast">+ Peito<small>Registrar e dizer como foi</small></button>
-    <button class="act bottle" type="button" id="add-bottle">+ Mamadeira<small>Informe os ml</small></button>
+    <button class="act breast" type="button" id="add-breast">+ Peito<small>Horário, como foi e arroto</small></button>
+    <button class="act bottle" type="button" id="add-bottle">+ Mamadeira<small>Horário, ml e arroto</small></button>
   </section>
 
   <button class="burp-start" type="button" id="burp-start">Cronômetro de arroto<small id="burp-dur">20 min</small></button>
@@ -300,7 +300,6 @@ textarea{resize:vertical;min-height:56px}
       <div class="split-bar" aria-hidden="true"><span class="sp" id="sp-b" style="width:0%"></span><span class="sm" id="sm-b" style="width:0%"></span></div>
       <div class="qual-leg"><span><i style="background:var(--breast)"></i><span id="q-s">0</span> satisfatório</span><span><i style="background:var(--breast-mid)"></i><span id="q-m">0</span> médio</span><span><i style="background:var(--breast-low)"></i><span id="q-p">0</span> pouco</span></div>
       <div class="verdict" id="verdict">Sem mamadas registradas neste período.</div>
-      <p class="hint">No quadro, mamada média conta como meia mamada e pouca como um quarto.</p>
     </div>
 
     <div class="stats">
@@ -313,7 +312,7 @@ textarea{resize:vertical;min-height:56px}
     </div>
 
     <div class="interval">
-      <div class="int-head"><span class="label">Intervalo entre mamadeiras</span><span><b id="i-pct">—</b> <span class="muted" style="font-size:.85rem">no horário</span></span></div>
+      <div class="int-head"><span class="label">Intervalo entre mamadas</span><span><b id="i-pct">—</b> <span class="muted" style="font-size:.85rem">no horário</span></span></div>
       <div class="int-bar" aria-hidden="true"><span class="a" id="i-ab"></span><span class="o" id="i-ob"></span><span class="d" id="i-db"></span></div>
       <div class="int-leg">
         <span><i style="background:var(--ok)"></i><span id="i-o">0</span> no horário</span>
@@ -396,30 +395,16 @@ textarea{resize:vertical;min-height:56px}
   </form>
 </div>
 
-<!-- Peito: como foi -->
-<div class="sheet-bg" id="q-bg" hidden>
-  <div class="sheet">
-    <div class="sheet-head"><h2>Como foi a mamada no peito?</h2><button type="button" class="mini" id="q-close">Fechar</button></div>
-    <div class="qual-btns" id="q-btns">
-      <button type="button" class="qbtn" data-q="s">Satisfatório<small>mamou bem</small></button>
-      <button type="button" class="qbtn" data-q="m">Médio<small>mamou menos que o normal</small></button>
-      <button type="button" class="qbtn" data-q="p">Pouco<small>quase não mamou</small></button>
-    </div>
-    <label style="display:flex;gap:10px;align-items:center;font-weight:700;font-size:.9rem"><input type="checkbox" id="q-burp" style="width:auto" checked> Iniciar cronômetro de arroto</label>
-    <p class="muted" style="margin:0;font-size:.82rem">Registra agora, às <span id="q-now" class="num"></span>. Para outro horário, use "+ Registrar neste dia".</p>
-  </div>
-</div>
-
 <!-- Ajustes -->
 <div class="sheet-bg" id="cfg-bg" hidden>
   <form class="sheet" id="cfg" novalidate>
-    <div class="sheet-head"><h2>Intervalo das mamadeiras</h2><button type="button" class="mini" id="cfg-close">Fechar</button></div>
-    <label class="field"><span>Dar mamadeira a cada</span><select id="c-int"></select></label>
+    <div class="sheet-head"><h2>Intervalo entre mamadas</h2><button type="button" class="mini" id="cfg-close">Fechar</button></div>
+    <label class="field"><span>Uma mamada (peito ou mamadeira) a cada</span><select id="c-int"></select></label>
     <label class="field"><span>Margem para contar como "no horário"</span>
       <select id="c-tol"><option value="10">10 minutos</option><option value="15">15 minutos</option><option value="20">20 minutos</option><option value="30">30 minutos</option></select></label>
     <label class="field"><span>Tempo de arroto</span>
       <select id="c-burp"><option value="10">10 minutos</option><option value="15">15 minutos</option><option value="20">20 minutos</option><option value="25">25 minutos</option><option value="30">30 minutos</option></select></label>
-    <p class="muted" style="margin:0;font-size:.85rem">O novo intervalo vale para as próximas mamadeiras. As já registradas continuam avaliadas pelo intervalo que valia na época.</p>
+    <p class="muted" style="margin:0;font-size:.85rem">O novo intervalo vale para as próximas mamadas. As já registradas continuam avaliadas pelo intervalo que valia na época.</p>
     <button class="btn primary" type="submit">Salvar ajuste</button>
   </form>
 </div>
@@ -474,7 +459,7 @@ function periodLabel(p){
 }
 
 /* ---------- análise ---------- */
-const QW = {s:1, m:.5, p:.25}, QN = {s:"Satisfatório", m:"Médio", p:"Pouco"};
+const QW = {s:1, m:1, p:1}, QN = {s:"Satisfatório", m:"Médio", p:"Pouco"};
 function tally(list){
   const r = {p:0, m:0, ml:0, qs:0, qm:0, qp:0, pw:0};
   for (const f of list){
@@ -483,11 +468,11 @@ function tally(list){
   }
   return r;
 }
-// avalia cada mamadeira em relação à anterior; retorna Map id -> {gap, cls}
+// avalia cada mamada (peito ou mamadeira) em relação à anterior; retorna Map id -> {gap, cls}
 function gaps(sortedAsc){
   const out = new Map(); let prev = null;
   for (const f of sortedAsc){
-    if (f.tipo!=="mamadeira") continue;
+    if (f.tipo!=="mamadeira" && f.tipo!=="peito") continue;
     if (prev){
       const g = (f.at - prev.at)/MIN, iv = +prev.int || S.cfg.intervalMin, tol = +S.cfg.tolMin || 20;
       out.set(f.id, {gap:g, cls: g < iv - tol ? "a" : g > iv + tol ? "d" : "o", iv});
@@ -538,16 +523,16 @@ async function putCfg(cfg){
   S.cfg = cfg; renderAll();
 }
 
-/* ---------- próxima mamadeira ---------- */
+/* ---------- próxima mamada ---------- */
 function renderHero(){
   const now = Date.now(), iv = S.cfg.intervalMin*MIN;
   $("int-label").textContent = dur(S.cfg.intervalMin);
-  const lb = S.recent.find(f=>f.tipo==="mamadeira");
+  const lb = S.recent.find(f=>f.tipo==="mamadeira" || f.tipo==="peito");
   const st = $("status"), bar = $("bar");
   if (!lb){
-    $("next-time").textContent = "--:--"; st.className="pill idle"; st.textContent="Sem mamadeira recente";
+    $("next-time").textContent = "--:--"; st.className="pill idle"; st.textContent="Sem mamada recente";
     $("bar-fill").style.width="0%"; bar.className="bar";
-    $("last-info").textContent = "Registre uma mamadeira para começar a contagem."; $("since").textContent = "";
+    $("last-info").textContent = "Registre uma mamada para começar a contagem."; $("since").textContent = "";
   } else {
     const next = lb.at + iv, diff = next - now;
     $("next-time").textContent = hm(next);
@@ -555,7 +540,7 @@ function renderHero(){
     else if (diff >= 0){ st.className="pill warn"; st.textContent="em "+dur(diff/MIN)+" · prepare"; bar.className="bar warn"; }
     else { st.className="pill late"; st.textContent="atrasada "+dur(-diff/MIN); bar.className="bar late"; }
     $("bar-fill").style.width = Math.min(100, Math.max(0,(now-lb.at)/iv*100)).toFixed(1)+"%";
-    $("last-info").textContent = "Última mamadeira "+hm(lb.at)+(lb.ml?" · "+lb.ml+" ml":"");
+    $("last-info").textContent = "Última mamada "+hm(lb.at)+" · "+(lb.tipo==="mamadeira" ? "mamadeira"+(lb.ml?" "+lb.ml+" ml":"") : "peito"+(QN[lb.qual]?" ("+QN[lb.qual].toLowerCase()+")":""));
     $("since").textContent = "há "+dur((now-lb.at)/MIN);
   }
   const t0 = sod(now), t = tally(S.recent.filter(f=>f.at>=t0));
@@ -563,9 +548,9 @@ function renderHero(){
 }
 
 /* ---------- período ---------- */
-function splitHTML(t){ const tot = t.pw + t.m; if (!tot) return "";
+function splitHTML(t){ const tot = t.p + t.m; if (!tot) return "";
   const w = v => (v/tot*100)+"%";
-  return `<span class="qs" style="width:${w(t.qs)}"></span><span class="qm" style="width:${w(t.qm*.5)}"></span><span class="qp" style="width:${w(t.qp*.25)}"></span><span class="sm" style="width:${w(t.m)}"></span>`; }
+  return `<span class="qs" style="width:${w(t.qs)}"></span><span class="qm" style="width:${w(t.qm)}"></span><span class="qp" style="width:${w(t.qp)}"></span><span class="sm" style="width:${w(t.m)}"></span>`; }
 
 function renderPeriod(){
   const p = period(), now = Date.now();
@@ -603,7 +588,7 @@ function renderPeriod(){
   $("i-pct").textContent = n ? Math.round(c.o/n*100)+"%" : "—";
   $("i-o").textContent = c.o; $("i-a").textContent = c.a; $("i-d").textContent = c.d;
   $("i-ab").style.width = n ? c.a/n*100+"%" : "0"; $("i-ob").style.width = n ? c.o/n*100+"%" : "0"; $("i-db").style.width = n ? c.d/n*100+"%" : "0";
-  $("i-avg").textContent = n ? "· intervalo médio "+dur(sum/n) : "· precisa de 2 mamadeiras no período";
+  $("i-avg").textContent = n ? "· intervalo médio "+dur(sum/n) : "· precisa de 2 mamadas no período";
 
   const byDay = new Map();
   for (const f of list){ const k = sod(f.at); if (!byDay.has(k)) byDay.set(k, []); byDay.get(k).push(f); }
@@ -747,16 +732,7 @@ let toastT = null, undoId = null;
 function toast(msg, id){ $("toast-t").textContent = msg; undoId = id; $("toast-undo").hidden = !id; $("toast").hidden = false; clearTimeout(toastT); toastT = setTimeout(()=>{ $("toast").hidden = true; }, 6000); }
 $("toast-undo").addEventListener("click", async ()=>{ $("toast").hidden = true; if (undoId){ try{ await delFeed(undoId); }catch(x){ fail(); } } });
 
-$("add-breast").addEventListener("click", ()=>{ $("q-now").textContent = hm(Date.now()); $("q-bg").hidden = false; });
-$("q-close").addEventListener("click", ()=>{ $("q-bg").hidden = true; });
-$("q-bg").addEventListener("click", e=>{ if (e.target===$("q-bg")) $("q-bg").hidden = true; });
-$("q-btns").addEventListener("click", async e=>{
-  const b = e.target.closest("button[data-q]"); if (!b) return;
-  const id = newId(), at = Date.now(), q = b.dataset.q;
-  $("q-bg").hidden = true;
-  if ($("q-burp").checked) startBurp(at);
-  try{ await putFeed(id, {tipo:"peito", at, qual:q, nota:""}); toast("Peito ("+QN[q].toLowerCase()+") às "+hm(at), id); }catch(x){ fail(); }
-});
+$("add-breast").addEventListener("click", ()=>openForm("peito"));
 
 /* formulário */
 let form = { tipo:"mamadeira", editId:null, int:null, qual:"" };
@@ -778,7 +754,7 @@ function openForm(tipo, f, at){
   $("f-burp-row").hidden = !!f; $("f-burp").checked = !f && (at==null);
   $("f-err").hidden = true; quickMl(); setTipo(tipo);
   $("form-bg").hidden = false;
-  if (tipo==="mamadeira") setTimeout(()=>$("f-ml").focus(), 60);
+  if (tipo==="mamadeira" && !f) setTimeout(()=>$("f-ml").focus(), 60);
 }
 function closeForm(){ $("form-bg").hidden = true; }
 $("f-qual").addEventListener("click", e=>{ const b = e.target.closest("button"); if (b){ form.qual = b.dataset.v; setSeg($("f-qual"), form.qual); } });
@@ -797,14 +773,16 @@ $("form").addEventListener("submit", async e=>{
   if (form.tipo==="mamadeira"){
     const ml = parseInt($("f-ml").value, 10);
     if (!(ml>=1 && ml<=400)) return err("Informe quantos ml de fórmula foram dados (entre 1 e 400).");
-    data.ml = ml; data.int = form.int || S.cfg.intervalMin;
+    data.ml = ml;
   } else {
-    if (!form.qual && !form.editId) return err("Escolha como foi a mamada: satisfatório, médio ou pouco.");
-    if (form.qual) data.qual = form.qual;
+    if (!form.qual) return err("Escolha como foi a mamada: satisfatório, médio ou pouco.");
+    data.qual = form.qual;
   }
+  data.int = form.int || S.cfg.intervalMin;
   if (!form.editId && $("f-burp").checked && Date.now() - at < 30*MIN) startBurp(at);
   $("f-save").disabled = true;
-  try { await putFeed(form.editId || newId(), data); closeForm(); toast((form.editId?"Registro atualizado":(form.tipo==="mamadeira"?"Mamadeira de "+data.ml+" ml registrada":"Peito registrado"))+" às "+hm(at), null); }
+  const id = form.editId || newId(), novo = !form.editId;
+  try { await putFeed(id, data); closeForm(); toast((novo ? (form.tipo==="mamadeira" ? "Mamadeira de "+data.ml+" ml" : "Peito ("+QN[data.qual].toLowerCase()+")")+" registrado" : "Registro atualizado")+" às "+hm(at), novo ? id : null); }
   catch(x){ err("Não foi possível salvar. Confira a conexão e tente de novo."); }
   $("f-save").disabled = false;
 });
@@ -822,7 +800,7 @@ $("cfg-bg").addEventListener("click", e=>{ if (e.target===$("cfg-bg")) $("cfg-bg
 $("cfg").addEventListener("submit", async e=>{ e.preventDefault();
   const cfg = { intervalMin: parseInt($("c-int").value,10)||180, tolMin: parseInt($("c-tol").value,10)||20, arrotoMin: parseInt($("c-burp").value,10)||20 };
   try{ await putCfg(cfg); $("cfg-bg").hidden = true; }catch(x){ fail(); } });
-document.addEventListener("keydown", e=>{ if (e.key==="Escape"){ closeForm(); $("q-bg").hidden = true; $("cfg-bg").hidden = true; } });
+document.addEventListener("keydown", e=>{ if (e.key==="Escape"){ closeForm(); $("cfg-bg").hidden = true; } });
 
 /* ---------- abas ---------- */
 function showTab(t){
@@ -871,9 +849,9 @@ function buildReport(list, s, e){
     days.push(Object.assign({k, gapAvg: gg.length ? gg.reduce((a,b)=>a+b,0)/gg.length : null}, tt));
   }
   const gl = [...g.values()], c = {o:0,a:0,d:0}; let sum = 0; for (const x of gl){ c[x.cls]++; sum += x.gap; }
-  const nd = Math.max(1, days.length), wt = t.pw + t.m;
+  const nd = Math.max(1, days.length), wt = t.p + t.m;
   return { s, e, list, t, days, g, nd, c, ng: gl.length, gapAvg: gl.length ? sum/gl.length : null,
-    pctP: wt ? Math.round(t.pw/wt*100) : 0, pctM: wt ? Math.round(t.m/wt*100) : 0 };
+    pctP: wt ? Math.round(t.p/wt*100) : 0, pctM: wt ? Math.round(t.m/wt*100) : 0 };
 }
 function repKV(R){
   const t = R.t, iv = dur(S.cfg.intervalMin);
@@ -881,8 +859,8 @@ function repKV(R){
     [t.p, "mamadas no peito"], [t.qs+" / "+t.qm+" / "+t.qp, "satisfatório / médio / pouco"],
     [t.m, "mamadeiras"], [t.ml.toLocaleString("pt-BR")+" ml", "fórmula no período"],
     [Math.round(t.ml/R.nd)+" ml", "fórmula por dia (média)"], [t.m ? Math.round(t.ml/t.m)+" ml" : "–", "por mamadeira (média)"],
-    [fmt((t.p+t.m)/R.nd), "mamadas por dia (média)"], [R.gapAvg!=null ? dur(R.gapAvg) : "–", "intervalo médio entre mamadeiras"],
-    [R.ng ? Math.round(R.c.o/R.ng*100)+"%" : "–", "mamadeiras no horário (meta "+iv+")"], [R.c.a+" antes · "+R.c.d+" depois", "fora do horário"]
+    [fmt((t.p+t.m)/R.nd), "mamadas por dia (média)"], [R.gapAvg!=null ? dur(R.gapAvg) : "–", "intervalo médio entre mamadas"],
+    [R.ng ? Math.round(R.c.o/R.ng*100)+"%" : "–", "mamadas no horário (meta "+iv+")"], [R.c.a+" antes · "+R.c.d+" depois", "fora do horário"]
   ];
 }
 $("r-gerar").addEventListener("click", async ()=>{
@@ -932,19 +910,18 @@ async function makePDF(R){
   doc.text("Relatório de alimentação"+(R.nome ? " - "+R.nome : ""), M, y+6); y += 26;
   doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...MUT);
   doc.text("Período: "+dBR(R.s)+" a "+dBR(R.e-1)+" ("+R.nd+(R.nd===1?" dia":" dias")+")   ·   Gerado em "+dBR(Date.now())+" às "+hm(Date.now()), M, y); y += 12;
-  doc.text("Intervalo combinado entre mamadeiras: "+dur(S.cfg.intervalMin)+" (tolerância de "+(S.cfg.tolMin||20)+" min)", M, y); y += 20;
+  doc.text("Intervalo combinado entre mamadas (peito ou mamadeira): "+dur(S.cfg.intervalMin)+" (tolerância de "+(S.cfg.tolMin||20)+" min)", M, y); y += 20;
 
   // barra peito × mamadeira
   doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...INK);
   doc.text("Peito x mamadeira", M, y); y += 8;
-  const bw = W - 2*M, tot = R.t.pw + R.t.m; let x = M;
+  const bw = W - 2*M, tot = R.t.p + R.t.m; let x = M;
   doc.setFillColor(...LINE); doc.roundedRect(M, y, bw, 12, 6, 6, "F");
-  if (tot){ [[R.t.qs, ROSE],[R.t.qm*.5, ROSE2],[R.t.qp*.25, ROSE3],[R.t.m, BLUE]].forEach(([v,c])=>{ const w = v/tot*bw; if (w>0){ doc.setFillColor(...c); doc.rect(x, y, w, 12, "F"); x += w; } }); }
+  if (tot){ [[R.t.qs, ROSE],[R.t.qm, ROSE2],[R.t.qp, ROSE3],[R.t.m, BLUE]].forEach(([v,c])=>{ const w = v/tot*bw; if (w>0){ doc.setFillColor(...c); doc.rect(x, y, w, 12, "F"); x += w; } }); }
   y += 24; doc.setFont("helvetica","normal"); doc.setFontSize(9.5);
   doc.setTextColor(...ROSE); doc.text("Peito "+R.pctP+"%  ("+R.t.p+" mamadas: "+R.t.qs+" satisfatórias, "+R.t.qm+" médias, "+R.t.qp+" poucas)", M, y);
   doc.setTextColor(...BLUE); doc.text("Mamadeira "+R.pctM+"%  ("+R.t.m+")", W-M, y, {align:"right"}); y += 12;
-  doc.setTextColor(...MUT); doc.setFontSize(8.5);
-  doc.text("Na proporção, mamada no peito média conta como 1/2 e pouca como 1/4.", M, y); y += 14;
+  y += 4;
 
   // resumo
   doc.autoTable({ startY: y, margin:{left:M, right:M}, theme:"plain",
@@ -993,7 +970,7 @@ async function makePDF(R){
     doc.addPage();
     doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor(...INK); doc.text("Todas as mamadas do período", M, M+6);
     doc.autoTable({ startY: M+18, margin:{left:M, right:M},
-      head:[["Data","Hora","Tipo","Fórmula / como foi","Desde a mamadeira anterior","Observação"]],
+      head:[["Data","Hora","Tipo","Fórmula / como foi","Desde a mamada anterior","Observação"]],
       body: R.list.map(f=>{ const isM = f.tipo==="mamadeira", gg = R.g.get(f.id);
         return [dBRs(f.at), hm(f.at), isM?"Mamadeira":"Peito", isM ? (f.ml||0)+" ml" : (QN[f.qual]||"-"),
           gg ? dur(gg.gap)+(gg.cls==="o"?" (no horário)":gg.cls==="a"?" (antes)":" (depois)") : "-", f.nota||""]; }),
