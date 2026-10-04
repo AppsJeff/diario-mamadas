@@ -211,7 +211,8 @@ textarea{resize:vertical;min-height:56px}
 /* Relatório */
 .rep-dates{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .rep-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
-.rep-table{width:100%;border-collapse:collapse;font-size:.82rem;font-variant-numeric:tabular-nums;min-width:440px}
+.rep-table{width:100%;border-collapse:collapse;font-size:.82rem;font-variant-numeric:tabular-nums;min-width:560px}
+.rep-table td{white-space:nowrap}
 .rep-table th{background:var(--surface-2);text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:8px}
 .rep-table td{padding:7px 8px;border-top:1px solid var(--line)}
 .rep-table td.r,.rep-table th.r{text-align:right}
@@ -257,7 +258,7 @@ textarea{resize:vertical;min-height:56px}
       <span id="since" class="num"></span>
     </div>
     <div class="today">
-      <span class="label" style="align-self:center">Hoje</span>
+      <span class="label" style="align-self:center" id="t-vida">Hoje</span>
       <span><b class="p" id="t-p">0</b>peito</span>
       <span><b class="m" id="t-m">0</b>mamadeiras</span>
       <span><b class="m" id="t-ml">0</b>ml de fórmula</span>
@@ -402,6 +403,10 @@ textarea{resize:vertical;min-height:56px}
     <label class="field"><span>Uma mamada (peito ou mamadeira) a cada</span><select id="c-int"></select></label>
     <label class="field"><span>Margem para contar como "no horário"</span>
       <select id="c-tol"><option value="10">10 minutos</option><option value="15">15 minutos</option><option value="20">20 minutos</option><option value="30">30 minutos</option></select></label>
+    <div class="two" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <label class="field"><span>Nome do bebê</span><input type="text" id="c-nome" maxlength="40"></label>
+      <label class="field"><span>Nascimento</span><input type="datetime-local" id="c-nasc"></label>
+    </div>
     <label class="field"><span>Tempo de arroto</span>
       <select id="c-burp"><option value="10">10 minutos</option><option value="15">15 minutos</option><option value="20">20 minutos</option><option value="25">25 minutos</option><option value="30">30 minutos</option></select></label>
     <p class="muted" style="margin:0;font-size:.85rem">O novo intervalo vale para as próximas mamadas. As já registradas continuam avaliadas pelo intervalo que valia na época.</p>
@@ -425,7 +430,7 @@ const MOL = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agos
 const LS = "diario-mamadas-v2";
 
 const S = {
-  cfg: { intervalMin: 180, tolMin: 20 },
+  cfg: { intervalMin: 180, tolMin: 20, arrotoMin: 20, nomeBebe: "Ethan", nascimento: new Date(2026, 8, 23, 22, 39).getTime() },
   recent: [],          // últimos dias (ao vivo)
   range: [],           // registros do período exibido
   all: [],             // modo local (sem sincronização)
@@ -457,6 +462,13 @@ function periodLabel(p){
   if (S.view==="mes") return MOL[a.getMonth()]+" "+a.getFullYear();
   return String(a.getFullYear());
 }
+
+/* ---------- dias de vida ---------- */
+// Dia do nascimento = dia 0; cada meia-noite soma 1 dia de vida.
+const nasc = () => +S.cfg.nascimento || new Date(2026, 8, 23, 22, 39).getTime();
+const vida = k => Math.round((sod(k) - sod(nasc()))/DAY);
+const vidaTxt = d => d < 0 ? "antes do nascimento" : d === 0 ? "dia do nascimento" : d + (d===1 ? " dia de vida" : " dias de vida");
+const vidaCurto = d => d < 0 ? "–" : d === 0 ? "nasc." : d + (d===1 ? " dia" : " dias");
 
 /* ---------- análise ---------- */
 const QW = {s:1, m:1, p:1}, QN = {s:"Satisfatório", m:"Médio", p:"Pouco"};
@@ -544,6 +556,7 @@ function renderHero(){
     $("since").textContent = "há "+dur((now-lb.at)/MIN);
   }
   const t0 = sod(now), t = tally(S.recent.filter(f=>f.at>=t0));
+  { const v = vida(now); $("t-vida").textContent = v >= 0 ? "Hoje · "+(S.cfg.nomeBebe||"bebê")+" "+vidaCurto(v) : "Hoje"; }
   $("t-p").textContent = t.p; $("t-m").textContent = t.m; $("t-ml").textContent = t.ml;
 }
 
@@ -634,7 +647,7 @@ function renderPeriod(){
 /* ---------- dia selecionado ---------- */
 function renderDay(){
   const k = S.sel ?? sod(Date.now()), d = new Date(k), today = sod(Date.now());
-  $("d-title").textContent = k===today ? "Hoje" : k===addDays(today,-1) ? "Ontem" : WDL[d.getDay()]+", "+d.getDate()+" "+MO[d.getMonth()];
+  $("d-title").textContent = (k===today ? "Hoje" : k===addDays(today,-1) ? "Ontem" : WDL[d.getDay()]+", "+d.getDate()+" "+MO[d.getMonth()]) + (vida(k) >= 0 ? " · "+vidaTxt(vida(k)) : "");
   const p = period();
   const src = (k>=p.s && k<p.e) ? S.range : S.recent;
   const items = src.filter(f=>sod(f.at)===k).sort((a,b)=>a.at-b.at);
@@ -794,11 +807,13 @@ $("add-past").addEventListener("click", ()=>{
 
 /* ajustes */
 (function(){ const sel = $("c-int"); for (let m=60;m<=360;m+=15){ const o = document.createElement("option"); o.value = m; const h = Math.floor(m/60), r = m%60; o.textContent = h+(h===1?" hora":" horas")+(r?" e "+r+" min":""); sel.appendChild(o); } })();
-$("open-cfg").addEventListener("click", ()=>{ $("c-int").value = S.cfg.intervalMin; $("c-tol").value = S.cfg.tolMin||20; $("c-burp").value = S.cfg.arrotoMin||20; $("cfg-bg").hidden = false; });
+$("open-cfg").addEventListener("click", ()=>{ $("c-int").value = S.cfg.intervalMin; $("c-tol").value = S.cfg.tolMin||20; $("c-burp").value = S.cfg.arrotoMin||20; $("c-nome").value = S.cfg.nomeBebe||""; $("c-nasc").value = toInput(nasc()); $("cfg-bg").hidden = false; });
 $("cfg-close").addEventListener("click", ()=>{ $("cfg-bg").hidden = true; });
 $("cfg-bg").addEventListener("click", e=>{ if (e.target===$("cfg-bg")) $("cfg-bg").hidden = true; });
 $("cfg").addEventListener("submit", async e=>{ e.preventDefault();
-  const cfg = { intervalMin: parseInt($("c-int").value,10)||180, tolMin: parseInt($("c-tol").value,10)||20, arrotoMin: parseInt($("c-burp").value,10)||20 };
+  const nv = new Date($("c-nasc").value).getTime();
+  const cfg = Object.assign({}, S.cfg, { intervalMin: parseInt($("c-int").value,10)||180, tolMin: parseInt($("c-tol").value,10)||20, arrotoMin: parseInt($("c-burp").value,10)||20,
+    nomeBebe: $("c-nome").value.trim() || S.cfg.nomeBebe || "", nascimento: isFinite(nv) ? nv : nasc() });
   try{ await putCfg(cfg); $("cfg-bg").hidden = true; }catch(x){ fail(); } });
 document.addEventListener("keydown", e=>{ if (e.key==="Escape"){ closeForm(); $("cfg-bg").hidden = true; } });
 
@@ -846,7 +861,7 @@ function buildReport(list, s, e){
   for (let k=s; k<e; k=addDays(k,1)){
     const items = list.filter(f=>sod(f.at)===k), tt = tally(items);
     const gg = items.filter(f=>g.has(f.id)).map(f=>g.get(f.id).gap);
-    days.push(Object.assign({k, gapAvg: gg.length ? gg.reduce((a,b)=>a+b,0)/gg.length : null}, tt));
+    days.push(Object.assign({k, v: vida(k), gapAvg: gg.length ? gg.reduce((a,b)=>a+b,0)/gg.length : null}, tt));
   }
   const gl = [...g.values()], c = {o:0,a:0,d:0}; let sum = 0; for (const x of gl){ c[x.cls]++; sum += x.gap; }
   const nd = Math.max(1, days.length), wt = t.p + t.m;
@@ -885,12 +900,12 @@ $("r-gerar").addEventListener("click", async ()=>{
 function renderReport(R){
   $("r-out").hidden = false;
   $("r-titulo").textContent = R.nome ? "Resumo de "+R.nome : "Resumo";
-  $("r-per").textContent = dBR(R.s)+" a "+dBR(R.e-1)+" · "+R.nd+(R.nd===1?" dia":" dias");
+  $("r-per").textContent = dBR(R.s)+" a "+dBR(R.e-1)+" · "+vidaCurto(vida(R.s))+" a "+vidaCurto(vida(R.e-1))+" de vida";
   $("r-sp").textContent = "Peito "+R.pctP+"%"; $("r-sm").textContent = "Mamadeira "+R.pctM+"%";
   $("r-bar").innerHTML = splitHTML(R.t);
   $("r-kv").innerHTML = repKV(R).map(([v,l])=>`<div><b>${esc(String(v))}</b><span>${esc(l)}</span></div>`).join("");
-  $("r-tab").innerHTML = `<thead><tr><th>Dia</th><th class="r">Peito</th><th class="r">S/M/P</th><th class="r">Mamad.</th><th class="r">Fórmula</th><th class="r">Interv. médio</th></tr></thead><tbody>`+
-    R.days.map(d=>`<tr><td>${WD[new Date(d.k).getDay()]} ${dBRs(d.k)}</td><td class="r">${d.p}</td><td class="r">${d.qs}/${d.qm}/${d.qp}</td><td class="r">${d.m}</td><td class="r">${d.ml} ml</td><td class="r">${d.gapAvg!=null?dur(d.gapAvg):"–"}</td></tr>`).join("")+`</tbody>`;
+  $("r-tab").innerHTML = `<thead><tr><th>Vida</th><th>Data</th><th class="r">Peito</th><th class="r">S/M/P</th><th class="r">Mamad.</th><th class="r">Fórmula</th><th class="r">ml/mamad.</th><th class="r">Interv. médio</th></tr></thead><tbody>`+
+    R.days.map(d=>`<tr><td><b>${vidaCurto(d.v)}</b></td><td>${WD[new Date(d.k).getDay()]} ${dBRs(d.k)}</td><td class="r">${d.p}</td><td class="r">${d.qs}/${d.qm}/${d.qp}</td><td class="r">${d.m}</td><td class="r">${d.ml} ml</td><td class="r">${d.m?Math.round(d.ml/d.m)+" ml":"–"}</td><td class="r">${d.gapAvg!=null?dur(d.gapAvg):"–"}</td></tr>`).join("")+`</tbody>`;
   if (!R.list.length) $("r-hint").textContent = "Nenhuma mamada registrada neste período.";
   try{ const f = new File([new Blob(["x"])], "t.pdf", {type:"application/pdf"}); $("r-share").hidden = !(navigator.canShare && navigator.canShare({files:[f]})); }catch(e){ $("r-share").hidden = true; }
   $("r-out").scrollIntoView({behavior:"smooth", block:"start"});
@@ -909,7 +924,8 @@ async function makePDF(R){
   doc.setFont("helvetica","bold"); doc.setFontSize(18); doc.setTextColor(...INK);
   doc.text("Relatório de alimentação"+(R.nome ? " - "+R.nome : ""), M, y+6); y += 26;
   doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...MUT);
-  doc.text("Período: "+dBR(R.s)+" a "+dBR(R.e-1)+" ("+R.nd+(R.nd===1?" dia":" dias")+")   ·   Gerado em "+dBR(Date.now())+" às "+hm(Date.now()), M, y); y += 12;
+  doc.text("Nascimento: "+dBR(nasc())+" às "+hm(nasc())+"   ·   Período: "+dBR(R.s)+" a "+dBR(R.e-1)+" ("+vidaCurto(vida(R.s))+" a "+vidaCurto(vida(R.e-1))+" de vida)", M, y); y += 12;
+  doc.text("Gerado em "+dBR(Date.now())+" às "+hm(Date.now())+"   ·   Dias de vida contados por data: dia do nascimento = 0", M, y); y += 12;
   doc.text("Intervalo combinado entre mamadas (peito ou mamadeira): "+dur(S.cfg.intervalMin)+" (tolerância de "+(S.cfg.tolMin||20)+" min)", M, y); y += 20;
 
   // barra peito × mamadeira
@@ -932,29 +948,30 @@ async function makePDF(R){
 
   // gráfico de fórmula por dia
   if (R.days.length >= 2 && R.days.length <= 62){
-    doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...INK); doc.text("Fórmula por dia (ml) e mamadas no peito", M, y); y += 10;
+    doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...INK); doc.text("Evolução da fórmula (ml por dia) pelos dias de vida", M, y); y += 14;
     const H = 110, n = R.days.length, cw = bw/n, maxMl = Math.max(30, ...R.days.map(d=>d.ml));
     const step = maxMl > 600 ? 200 : maxMl > 300 ? 100 : maxMl > 120 ? 50 : 30, top = Math.ceil(maxMl/step)*step;
     doc.setDrawColor(...LINE); doc.setLineWidth(.5); doc.setFontSize(7); doc.setFont("helvetica","normal"); doc.setTextColor(...MUT);
     for (let v=0; v<=top; v+=step){ const yy = y + H - v/top*H; doc.line(M, yy, W-M, yy); doc.text(String(v), M-4, yy+2, {align:"right"}); }
     R.days.forEach((d,i)=>{
       const cx = M + cw*i + cw/2, w = Math.min(14, cw*.6), h = d.ml/top*H;
-      if (h>0){ doc.setFillColor(...BLUE); doc.rect(cx-w/2, y+H-h, w, h, "F"); }
-      if (n <= 31 || i % 2 === 0){ doc.setTextColor(...MUT); doc.text(dBRs(d.k), cx, y+H+9, {align:"center"}); }
+      if (h>0){ doc.setFillColor(...BLUE); doc.rect(cx-w/2, y+H-h, w, h, "F"); if (n <= 21){ doc.setTextColor(...BLUE); doc.text(String(d.ml), cx, y+H-h-3, {align:"center"}); } }
+      if (n <= 31 || i % 2 === 0){ doc.setTextColor(...INK); doc.text(d.v >= 0 ? String(d.v) : "-", cx, y+H+9, {align:"center"}); }
       if (d.p){ doc.setTextColor(...ROSE); doc.text(String(d.p), cx, y+H+18, {align:"center"}); }
     });
+    doc.setTextColor(...MUT); doc.text("eixo: dias de vida", M, y+H+28);
     doc.setTextColor(...ROSE); doc.text("número rosa = mamadas no peito no dia", W-M, y+H+28, {align:"right"});
     y += H + 40;
   }
 
   // dia a dia
   doc.autoTable({ startY: y, margin:{left:M, right:M},
-    head:[["Dia","Peito","Satisf./Médio/Pouco","Mamadeiras","Fórmula","Intervalo médio"]],
-    body: R.days.map(d=>[WD[new Date(d.k).getDay()]+" "+dBRs(d.k), d.p, d.qs+" / "+d.qm+" / "+d.qp, d.m, d.ml+" ml", d.gapAvg!=null?dur(d.gapAvg):"-"]),
-    foot:[["Total", R.t.p, R.t.qs+" / "+R.t.qm+" / "+R.t.qp, R.t.m, R.t.ml+" ml", R.gapAvg!=null?dur(R.gapAvg):"-"]],
+    head:[["Dias de vida","Data","Peito","Satisf./Médio/Pouco","Mamadeiras","Fórmula","ml por mamadeira","Intervalo médio"]],
+    body: R.days.map(d=>[vidaCurto(d.v), WD[new Date(d.k).getDay()]+" "+dBRs(d.k), d.p, d.qs+" / "+d.qm+" / "+d.qp, d.m, d.ml+" ml", d.m?Math.round(d.ml/d.m)+" ml":"-", d.gapAvg!=null?dur(d.gapAvg):"-"]),
+    foot:[["Total","", R.t.p, R.t.qs+" / "+R.t.qm+" / "+R.t.qp, R.t.m, R.t.ml+" ml", R.t.m?Math.round(R.t.ml/R.t.m)+" ml":"-", R.gapAvg!=null?dur(R.gapAvg):"-"]],
     styles:{font:"helvetica", fontSize:9, textColor:INK, lineColor:LINE, lineWidth:.5},
     headStyles:{fillColor:[245,247,251], textColor:MUT, fontStyle:"bold"}, footStyles:{fillColor:[245,247,251], textColor:INK, fontStyle:"bold"},
-    columnStyles:{1:{halign:"right"},2:{halign:"center"},3:{halign:"right"},4:{halign:"right"},5:{halign:"right"}} });
+    columnStyles:{0:{fontStyle:"bold"},2:{halign:"right"},3:{halign:"center"},4:{halign:"right"},5:{halign:"right"},6:{halign:"right"},7:{halign:"right"}} });
   y = doc.lastAutoTable.finalY + 18;
 
   // observações
@@ -970,14 +987,14 @@ async function makePDF(R){
     doc.addPage();
     doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor(...INK); doc.text("Todas as mamadas do período", M, M+6);
     doc.autoTable({ startY: M+18, margin:{left:M, right:M},
-      head:[["Data","Hora","Tipo","Fórmula / como foi","Desde a mamada anterior","Observação"]],
+      head:[["Vida","Data","Hora","Tipo","Fórmula / como foi","Desde a mamada anterior","Observação"]],
       body: R.list.map(f=>{ const isM = f.tipo==="mamadeira", gg = R.g.get(f.id);
-        return [dBRs(f.at), hm(f.at), isM?"Mamadeira":"Peito", isM ? (f.ml||0)+" ml" : (QN[f.qual]||"-"),
+        return [vidaCurto(vida(f.at)), dBRs(f.at), hm(f.at), isM?"Mamadeira":"Peito", isM ? (f.ml||0)+" ml" : (QN[f.qual]||"-"),
           gg ? dur(gg.gap)+(gg.cls==="o"?" (no horário)":gg.cls==="a"?" (antes)":" (depois)") : "-", f.nota||""]; }),
       styles:{font:"helvetica", fontSize:8.5, textColor:INK, lineColor:LINE, lineWidth:.5, overflow:"linebreak"},
       headStyles:{fillColor:[245,247,251], textColor:MUT, fontStyle:"bold"},
-      columnStyles:{5:{cellWidth:120}},
-      didParseCell: h=>{ if (h.section==="body" && h.column.index===2){ h.cell.styles.textColor = h.cell.raw==="Peito" ? ROSE : BLUE; h.cell.styles.fontStyle = "bold"; } } });
+      columnStyles:{6:{cellWidth:110}},
+      didParseCell: h=>{ if (h.section==="body" && h.column.index===3){ h.cell.styles.textColor = h.cell.raw==="Peito" ? ROSE : BLUE; h.cell.styles.fontStyle = "bold"; } } });
   }
 
   // rodapé
@@ -1021,7 +1038,7 @@ if (!window.FIREBASE_CONFIG || !window.FIREBASE_CONFIG.apiKey || String(window.F
     renderHero(); $("sync").className = "sync"+(S.live?" on":""); $("sync-t").textContent = S.live ? "Sincronizado" : "Sem internet · salvo no aparelho";
     scheduleReload();
   }, noAccess);
-  db.doc("config/geral").onSnapshot(s=>{ if (s.exists){ S.cfg = Object.assign({intervalMin:180, tolMin:20, arrotoMin:20}, s.data()); renderHero(); renderBurp(); renderPeriod(); renderDay(); } }, ()=>{});
+  db.doc("config/geral").onSnapshot(s=>{ if (s.exists){ S.cfg = Object.assign({intervalMin:180, tolMin:20, arrotoMin:20, nomeBebe:"Ethan", nascimento:new Date(2026, 8, 23, 22, 39).getTime()}, s.data()); renderHero(); renderBurp(); renderPeriod(); renderDay(); } }, ()=>{});
   db.doc("config/arroto").onSnapshot(s=>{ S.burp = s.exists ? s.data() : null; renderBurp(); }, ()=>{});
   loadPeriod();
 }
