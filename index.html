@@ -186,8 +186,13 @@ textarea{resize:vertical;min-height:56px}
 .err{color:var(--late);font-size:.85rem;font-weight:700}
 
 /* Arroto */
-.burp-start{border:1.5px dashed var(--line);background:var(--surface);border-radius:16px;padding:12px 14px;font-weight:800;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left}
-.burp-start small{font-weight:600;color:var(--muted)}
+.burp-idle{border:1.5px dashed var(--line);background:var(--surface);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.burp-idle-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.burp-idle-top b{font-weight:800}
+.burp-tempos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.burp-tempos button{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 4px;font-weight:800;font-size:.9rem;font-variant-numeric:tabular-nums;color:var(--muted)}
+.burp-tempos button[aria-pressed="true"]{border-color:var(--warn);background:var(--warn-soft);color:var(--warn)}
+.burp.done .burp-tempos button[aria-pressed="true"]{border-color:var(--ok);background:var(--surface);color:var(--ok)}
 .burp{background:var(--surface);border:2px solid var(--warn);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
 .burp.done{border-color:var(--ok);background:var(--ok-soft)}
 .burp-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
@@ -270,7 +275,10 @@ textarea{resize:vertical;min-height:56px}
     <button class="act bottle" type="button" id="add-bottle">+ Mamadeira<small>Horário, ml e arroto</small></button>
   </section>
 
-  <button class="burp-start" type="button" id="burp-start">Cronômetro de arroto<small id="burp-dur">20 min</small></button>
+  <section class="burp-idle" id="burp-start">
+    <div class="burp-idle-top"><b>Cronômetro de arroto</b><button class="btn primary" type="button" id="burp-go" style="padding:8px 16px">Iniciar <span id="burp-dur">20 min</span></button></div>
+    <div class="burp-tempos" id="burp-tempos-idle" role="group" aria-label="Tempo de espera para arrotar"><button type="button" data-min="20">20 min</button><button type="button" data-min="30">30 min</button><button type="button" data-min="40">40 min</button><button type="button" data-min="50">50 min</button></div>
+  </section>
   <section class="burp" id="burp" hidden aria-live="polite">
     <div class="burp-top">
       <div>
@@ -280,6 +288,7 @@ textarea{resize:vertical;min-height:56px}
       <span class="muted num" style="font-size:.85rem" id="burp-since"></span>
     </div>
     <div class="bar"><span id="burp-fill" style="width:0%"></span></div>
+    <div class="burp-tempos" id="burp-tempos-run" role="group" aria-label="Mudar o tempo de espera"><button type="button" data-min="20">20 min</button><button type="button" data-min="30">30 min</button><button type="button" data-min="40">40 min</button><button type="button" data-min="50">50 min</button></div>
     <div class="burp-btns">
       <button class="btn ghost" type="button" id="burp-stop">Parar</button>
       <button class="btn ghost" type="button" id="burp-restart">Recomeçar</button>
@@ -408,7 +417,7 @@ textarea{resize:vertical;min-height:56px}
       <label class="field"><span>Nascimento</span><input type="datetime-local" id="c-nasc"></label>
     </div>
     <label class="field"><span>Tempo de arroto</span>
-      <select id="c-burp"><option value="10">10 minutos</option><option value="15">15 minutos</option><option value="20">20 minutos</option><option value="25">25 minutos</option><option value="30">30 minutos</option></select></label>
+      <select id="c-burp"><option value="20">20 minutos</option><option value="30">30 minutos</option><option value="40">40 minutos</option><option value="50">50 minutos</option></select></label>
     <p class="muted" style="margin:0;font-size:.85rem">O novo intervalo vale para as próximas mamadas. As já registradas continuam avaliadas pelo intervalo que valia na época.</p>
     <button class="btn primary" type="submit">Salvar ajuste</button>
   </form>
@@ -717,6 +726,8 @@ function renderBurp(){
   const b = S.burp, now = Date.now();
   $("burp-dur").textContent = burpMin()+" min";
   const on = !!(b && b.ativo && b.inicio), total = (on ? (+b.min||burpMin()) : burpMin())*MIN;
+  const marca = (el, m) => { for (const x of el.children) x.setAttribute("aria-pressed", String(+x.dataset.min === m)); };
+  marca($("burp-tempos-idle"), burpMin()); marca($("burp-tempos-run"), total/MIN);
   const end = on ? b.inicio + total : 0;
   const show = on && now < end + 60*MIN;      // some sozinho 1h depois de acabar
   $("burp").hidden = !show; $("burp-start").hidden = show;
@@ -734,7 +745,13 @@ function renderBurp(){
     $("burp-stop").textContent = "Parar"; keepAwake(true);
   }
 }
-$("burp-start").addEventListener("click", ()=>startBurp());
+$("burp-go").addEventListener("click", ()=>startBurp());
+// escolher o tempo: vira o padrão das próximas vezes
+function escolheTempo(m){ if (m !== burpMin()) putCfg(Object.assign({}, S.cfg, {arrotoMin: m})); renderBurp(); }
+$("burp-tempos-idle").addEventListener("click", e=>{ const b = e.target.closest("button[data-min]"); if (b) escolheTempo(+b.dataset.min); });
+// com o cronômetro rodando: muda o tempo sem perder a hora em que começou
+$("burp-tempos-run").addEventListener("click", e=>{ const b = e.target.closest("button[data-min]"); if (!b || !S.burp) return;
+  const m = +b.dataset.min; putBurp(Object.assign({}, S.burp, {min: m})); escolheTempo(m); });
 $("burp-restart").addEventListener("click", ()=>startBurp());
 $("burp-stop").addEventListener("click", ()=>putBurp(null));
 document.addEventListener("visibilitychange", ()=>{ if (!document.hidden) renderBurp(); });
@@ -807,7 +824,7 @@ $("add-past").addEventListener("click", ()=>{
 
 /* ajustes */
 (function(){ const sel = $("c-int"); for (let m=60;m<=360;m+=15){ const o = document.createElement("option"); o.value = m; const h = Math.floor(m/60), r = m%60; o.textContent = h+(h===1?" hora":" horas")+(r?" e "+r+" min":""); sel.appendChild(o); } })();
-$("open-cfg").addEventListener("click", ()=>{ $("c-int").value = S.cfg.intervalMin; $("c-tol").value = S.cfg.tolMin||20; $("c-burp").value = S.cfg.arrotoMin||20; $("c-nome").value = S.cfg.nomeBebe||""; $("c-nasc").value = toInput(nasc()); $("cfg-bg").hidden = false; });
+$("open-cfg").addEventListener("click", ()=>{ $("c-int").value = S.cfg.intervalMin; $("c-tol").value = S.cfg.tolMin||20; $("c-burp").value = [20,30,40,50].includes(+S.cfg.arrotoMin) ? S.cfg.arrotoMin : 20; $("c-nome").value = S.cfg.nomeBebe||""; $("c-nasc").value = toInput(nasc()); $("cfg-bg").hidden = false; });
 $("cfg-close").addEventListener("click", ()=>{ $("cfg-bg").hidden = true; });
 $("cfg-bg").addEventListener("click", e=>{ if (e.target===$("cfg-bg")) $("cfg-bg").hidden = true; });
 $("cfg").addEventListener("submit", async e=>{ e.preventDefault();
