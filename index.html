@@ -227,6 +227,8 @@ textarea{resize:vertical;min-height:56px}
 .rep-kv span{font-size:.75rem;color:var(--muted)}
 .rep-actions{display:flex;gap:8px;flex-wrap:wrap}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 10px 10px 16px;display:flex;gap:12px;align-items:center;font-weight:700;font-size:.9rem;z-index:30;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.lembrar{border:1.5px solid var(--bottle);background:var(--bottle-soft);color:var(--bottle);border-radius:12px;padding:10px 14px;font-weight:800;font-size:.9rem;text-align:center}
+.lembrar:disabled{opacity:.45;cursor:default}
 .toast button{background:transparent;border:1px solid currentColor;color:inherit;border-radius:9px;padding:5px 10px;font-weight:800;font-size:.8rem}
 .foot{font-size:.75rem;color:var(--muted);text-align:center;margin:0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -262,6 +264,7 @@ textarea{resize:vertical;min-height:56px}
       <span id="last-info">Registre a primeira mamada para começar a contagem.</span>
       <span id="since" class="num"></span>
     </div>
+    <button class="lembrar" type="button" id="lembrar" hidden>Criar lembrete no calendário</button>
     <div class="today">
       <span class="label" style="align-self:center" id="t-vida">Hoje</span>
       <span><b class="p" id="t-p">0</b>peito</span>
@@ -423,7 +426,7 @@ textarea{resize:vertical;min-height:56px}
   </form>
 </div>
 
-<div class="toast" id="toast" hidden><span id="toast-t"></span><button type="button" id="toast-undo">Desfazer</button></div>
+<div class="toast" id="toast" hidden><span id="toast-t"></span><button type="button" id="toast-lembrar" hidden>Lembrar da próxima</button><button type="button" id="toast-undo">Desfazer</button></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -554,6 +557,7 @@ function renderHero(){
     $("next-time").textContent = "--:--"; st.className="pill idle"; st.textContent="Sem mamada recente";
     $("bar-fill").style.width="0%"; bar.className="bar";
     $("last-info").textContent = "Registre uma mamada para começar a contagem."; $("since").textContent = "";
+    $("lembrar").hidden = true;
   } else {
     const next = lb.at + iv, diff = next - now;
     $("next-time").textContent = hm(next);
@@ -563,6 +567,9 @@ function renderHero(){
     $("bar-fill").style.width = Math.min(100, Math.max(0,(now-lb.at)/iv*100)).toFixed(1)+"%";
     $("last-info").textContent = "Última mamada "+hm(lb.at)+" · "+(lb.tipo==="mamadeira" ? "mamadeira"+(lb.ml?" "+lb.ml+" ml":"") : "peito"+(QN[lb.qual]?" ("+QN[lb.qual].toLowerCase()+")":""));
     $("since").textContent = "há "+dur((now-lb.at)/MIN);
+    const lem = $("lembrar"); lem.hidden = false; lem.dataset.at = lb.at;
+    const txt = diff > 0 ? "Criar lembrete no calendário para as "+hm(next) : "Horário já passou · registre a mamada";
+    if (lem.textContent !== txt){ lem.textContent = txt; lem.disabled = diff <= 0; }
   }
   const t0 = sod(now), t = tally(S.recent.filter(f=>f.at>=t0));
   { const v = vida(now); $("t-vida").textContent = v >= 0 ? "Hoje · "+(S.cfg.nomeBebe||"bebê")+" "+vidaCurto(v) : "Hoje"; }
@@ -757,9 +764,42 @@ $("burp-stop").addEventListener("click", ()=>putBurp(null));
 document.addEventListener("visibilitychange", ()=>{ if (!document.hidden) renderBurp(); });
 setInterval(renderBurp, 1000);
 
+/* ---------- lembrete no calendário ---------- */
+function icsData(ms){ const d = new Date(ms); return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+"T"+pad(d.getUTCHours())+pad(d.getUTCMinutes())+pad(d.getUTCSeconds())+"Z"; }
+function icsTxt(t){ return String(t).replace(/\\/g,"\\\\").replace(/;/g,"\;").replace(/,/g,"\\,").replace(/\n/g,"\\n"); }
+function lembrete(lastAt){
+  const next = lastAt + S.cfg.intervalMin*MIN;
+  if (next <= Date.now()) { toast("O horário da próxima mamada já passou.", null); return; }
+  const nome = S.cfg.nomeBebe || "bebê";
+  const last = S.recent.find(f=>f.at===lastAt);
+  const desc = "Última mamada às "+hm(lastAt)+(last ? (last.tipo==="mamadeira" ? " (mamadeira"+(last.ml?" "+last.ml+" ml":"")+")" : " (peito)") : "")+". Intervalo de "+dur(S.cfg.intervalMin)+".";
+  const ics = [
+    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Diario de Mamadas//PT-BR","CALSCALE:GREGORIAN","METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    "UID:mamada-"+next+"@diario-mamadas",
+    "DTSTAMP:"+icsData(Date.now()),
+    "DTSTART:"+icsData(next),
+    "DTEND:"+icsData(next + 15*MIN),
+    "SUMMARY:"+icsTxt("Hora de alimentar o "+nome),
+    "DESCRIPTION:"+icsTxt(desc),
+    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsTxt("Hora de alimentar o "+nome),"TRIGGER:PT0M","END:VALARM",
+    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsTxt("Faltam 10 min para alimentar o "+nome),"TRIGGER:-PT10M","END:VALARM",
+    "END:VEVENT","END:VCALENDAR",""
+  ].join("\r\n");
+  const url = URL.createObjectURL(new Blob([ics], {type:"text/calendar;charset=utf-8"}));
+  // sem "download": no iPhone abre a tela "Adicionar ao Calendário"; no Android abre o app de calendário
+  const a = document.createElement("a"); a.href = url; a.rel = "noopener";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 60000);
+}
+$("lembrar").addEventListener("click", ()=>{ const at = +$("lembrar").dataset.at; if (at) lembrete(at); });
+$("toast-lembrar").addEventListener("click", ()=>{ $("toast").hidden = true; if (lembrarAt) lembrete(lembrarAt); });
+
 /* toast com desfazer */
 let toastT = null, undoId = null;
-function toast(msg, id){ $("toast-t").textContent = msg; undoId = id; $("toast-undo").hidden = !id; $("toast").hidden = false; clearTimeout(toastT); toastT = setTimeout(()=>{ $("toast").hidden = true; }, 6000); }
+let lembrarAt = null;
+function toast(msg, id, at){ $("toast-t").textContent = msg; undoId = id; $("toast-undo").hidden = !id;
+  lembrarAt = (at && at + S.cfg.intervalMin*MIN > Date.now()) ? at : null; $("toast-lembrar").hidden = !lembrarAt; $("toast").hidden = false; clearTimeout(toastT); toastT = setTimeout(()=>{ $("toast").hidden = true; }, lembrarAt ? 12000 : 6000); }
 $("toast-undo").addEventListener("click", async ()=>{ $("toast").hidden = true; if (undoId){ try{ await delFeed(undoId); }catch(x){ fail(); } } });
 
 $("add-breast").addEventListener("click", ()=>openForm("peito"));
@@ -812,7 +852,7 @@ $("form").addEventListener("submit", async e=>{
   if (!form.editId && $("f-burp").checked && Date.now() - at < 30*MIN) startBurp(at);
   $("f-save").disabled = true;
   const id = form.editId || newId(), novo = !form.editId;
-  try { await putFeed(id, data); closeForm(); toast((novo ? (form.tipo==="mamadeira" ? "Mamadeira de "+data.ml+" ml" : "Peito ("+QN[data.qual].toLowerCase()+")")+" registrado" : "Registro atualizado")+" às "+hm(at), novo ? id : null); }
+  try { await putFeed(id, data); closeForm(); toast((novo ? (form.tipo==="mamadeira" ? "Mamadeira de "+data.ml+" ml" : "Peito ("+QN[data.qual].toLowerCase()+")")+" registrado" : "Registro atualizado")+" às "+hm(at), novo ? id : null, novo ? at : null); }
   catch(x){ err("Não foi possível salvar. Confira a conexão e tente de novo."); }
   $("f-save").disabled = false;
 });
