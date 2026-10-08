@@ -241,7 +241,7 @@ textarea{resize:vertical;min-height:56px}
     <h1>Diário de Mamadas</h1>
     <div class="top-r">
       <span class="sync" id="sync"><i></i><span id="sync-t">Carregando</span></span>
-      <button class="icon-btn" id="open-cfg" type="button" aria-label="Ajustar intervalo entre mamadas">a cada <span id="int-label" class="num">3h</span></button>
+      <button class="icon-btn" id="open-cfg" type="button" aria-label="Ajustar intervalo entre mamadeiras">a cada <span id="int-label" class="num">3h</span></button>
     </div>
   </header>
 
@@ -254,14 +254,14 @@ textarea{resize:vertical;min-height:56px}
   <section class="hero" aria-live="polite">
     <div class="hero-row">
       <div>
-        <div class="label">Próxima mamada</div>
+        <div class="label">Próxima mamadeira</div>
         <div class="big" id="next-time">--:--</div>
       </div>
       <span class="pill idle" id="status">Sem registros</span>
     </div>
     <div class="bar" id="bar"><span id="bar-fill" style="width:0%"></span></div>
     <div class="hero-meta">
-      <span id="last-info">Registre a primeira mamada para começar a contagem.</span>
+      <span id="last-info">Registre a primeira mamadeira para começar a contagem.</span>
       <span id="since" class="num"></span>
     </div>
     <button class="lembrar" type="button" id="lembrar" hidden>Criar lembrete no calendário</button>
@@ -325,7 +325,7 @@ textarea{resize:vertical;min-height:56px}
     </div>
 
     <div class="interval">
-      <div class="int-head"><span class="label">Intervalo entre mamadas</span><span><b id="i-pct">—</b> <span class="muted" style="font-size:.85rem">no horário</span></span></div>
+      <div class="int-head"><span class="label">Intervalo entre mamadeiras</span><span><b id="i-pct">—</b> <span class="muted" style="font-size:.85rem">no horário</span></span></div>
       <div class="int-bar" aria-hidden="true"><span class="a" id="i-ab"></span><span class="o" id="i-ob"></span><span class="d" id="i-db"></span></div>
       <div class="int-leg">
         <span><i style="background:var(--ok)"></i><span id="i-o">0</span> no horário</span>
@@ -411,8 +411,8 @@ textarea{resize:vertical;min-height:56px}
 <!-- Ajustes -->
 <div class="sheet-bg" id="cfg-bg" hidden>
   <form class="sheet" id="cfg" novalidate>
-    <div class="sheet-head"><h2>Intervalo entre mamadas</h2><button type="button" class="mini" id="cfg-close">Fechar</button></div>
-    <label class="field"><span>Uma mamada (peito ou mamadeira) a cada</span><select id="c-int"></select></label>
+    <div class="sheet-head"><h2>Intervalo entre mamadeiras</h2><button type="button" class="mini" id="cfg-close">Fechar</button></div>
+    <label class="field"><span>Dar mamadeira a cada</span><select id="c-int"></select></label>
     <label class="field"><span>Margem para contar como "no horário"</span>
       <select id="c-tol"><option value="10">10 minutos</option><option value="15">15 minutos</option><option value="20">20 minutos</option><option value="30">30 minutos</option></select></label>
     <div class="two" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -421,12 +421,12 @@ textarea{resize:vertical;min-height:56px}
     </div>
     <label class="field"><span>Tempo de arroto</span>
       <select id="c-burp"><option value="20">20 minutos</option><option value="30">30 minutos</option><option value="40">40 minutos</option><option value="50">50 minutos</option></select></label>
-    <p class="muted" style="margin:0;font-size:.85rem">O novo intervalo vale para as próximas mamadas. As já registradas continuam avaliadas pelo intervalo que valia na época.</p>
+    <p class="muted" style="margin:0;font-size:.85rem">O novo intervalo vale para as próximas mamadeiras. As mamadas no peito não entram nessa conta. As já registradas continuam avaliadas pelo intervalo que valia na época.</p>
     <button class="btn primary" type="submit">Salvar ajuste</button>
   </form>
 </div>
 
-<div class="toast" id="toast" hidden><span id="toast-t"></span><button type="button" id="toast-lembrar" hidden>Lembrar da próxima</button><button type="button" id="toast-undo">Desfazer</button></div>
+<div class="toast" id="toast" hidden><span id="toast-t"></span><button type="button" id="toast-lembrar" hidden>Lembrar da próxima mamadeira</button><button type="button" id="toast-undo">Desfazer</button></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -492,11 +492,11 @@ function tally(list){
   }
   return r;
 }
-// avalia cada mamada (peito ou mamadeira) em relação à anterior; retorna Map id -> {gap, cls}
+// avalia cada mamadeira em relação à mamadeira anterior (peito não entra); retorna Map id -> {gap, cls}
 function gaps(sortedAsc){
   const out = new Map(); let prev = null;
   for (const f of sortedAsc){
-    if (f.tipo!=="mamadeira" && f.tipo!=="peito") continue;
+    if (f.tipo!=="mamadeira") continue;
     if (prev){
       const g = (f.at - prev.at)/MIN, iv = +prev.int || S.cfg.intervalMin, tol = +S.cfg.tolMin || 20;
       out.set(f.id, {gap:g, cls: g < iv - tol ? "a" : g > iv + tol ? "d" : "o", iv});
@@ -551,12 +551,13 @@ async function putCfg(cfg){
 function renderHero(){
   const now = Date.now(), iv = S.cfg.intervalMin*MIN;
   $("int-label").textContent = dur(S.cfg.intervalMin);
-  const lb = S.recent.find(f=>f.tipo==="mamadeira" || f.tipo==="peito");
+  const lb = S.recent.find(f=>f.tipo==="mamadeira");
+  const lp = S.recent.find(f=>f.tipo==="peito");
   const st = $("status"), bar = $("bar");
   if (!lb){
-    $("next-time").textContent = "--:--"; st.className="pill idle"; st.textContent="Sem mamada recente";
+    $("next-time").textContent = "--:--"; st.className="pill idle"; st.textContent="Sem mamadeira recente";
     $("bar-fill").style.width="0%"; bar.className="bar";
-    $("last-info").textContent = "Registre uma mamada para começar a contagem."; $("since").textContent = "";
+    $("last-info").textContent = "Registre uma mamadeira para começar a contagem."+(lp ? " Último peito às "+hm(lp.at)+"." : ""); $("since").textContent = "";
     $("lembrar").hidden = true;
   } else {
     const next = lb.at + iv, diff = next - now;
@@ -565,10 +566,10 @@ function renderHero(){
     else if (diff >= 0){ st.className="pill warn"; st.textContent="em "+dur(diff/MIN)+" · prepare"; bar.className="bar warn"; }
     else { st.className="pill late"; st.textContent="atrasada "+dur(-diff/MIN); bar.className="bar late"; }
     $("bar-fill").style.width = Math.min(100, Math.max(0,(now-lb.at)/iv*100)).toFixed(1)+"%";
-    $("last-info").textContent = "Última mamada "+hm(lb.at)+" · "+(lb.tipo==="mamadeira" ? "mamadeira"+(lb.ml?" "+lb.ml+" ml":"") : "peito"+(QN[lb.qual]?" ("+QN[lb.qual].toLowerCase()+")":""));
+    $("last-info").textContent = "Última mamadeira "+hm(lb.at)+(lb.ml?" · "+lb.ml+" ml":"")+(lp && lp.at > lb.at ? " · peito às "+hm(lp.at)+(QN[lp.qual]?" ("+QN[lp.qual].toLowerCase()+")":"") : "");
     $("since").textContent = "há "+dur((now-lb.at)/MIN);
     const lem = $("lembrar"); lem.hidden = false; lem.dataset.at = lb.at;
-    const txt = diff > 0 ? "Criar lembrete no calendário para as "+hm(next) : "Horário já passou · registre a mamada";
+    const txt = diff > 0 ? "Criar lembrete no calendário para as "+hm(next) : "Horário já passou · registre a mamadeira";
     if (lem.textContent !== txt){ lem.textContent = txt; lem.disabled = diff <= 0; }
   }
   const t0 = sod(now), t = tally(S.recent.filter(f=>f.at>=t0));
@@ -617,7 +618,7 @@ function renderPeriod(){
   $("i-pct").textContent = n ? Math.round(c.o/n*100)+"%" : "—";
   $("i-o").textContent = c.o; $("i-a").textContent = c.a; $("i-d").textContent = c.d;
   $("i-ab").style.width = n ? c.a/n*100+"%" : "0"; $("i-ob").style.width = n ? c.o/n*100+"%" : "0"; $("i-db").style.width = n ? c.d/n*100+"%" : "0";
-  $("i-avg").textContent = n ? "· intervalo médio "+dur(sum/n) : "· precisa de 2 mamadas no período";
+  $("i-avg").textContent = n ? "· intervalo médio "+dur(sum/n) : "· precisa de 2 mamadeiras no período";
 
   const byDay = new Map();
   for (const f of list){ const k = sod(f.at); if (!byDay.has(k)) byDay.set(k, []); byDay.get(k).push(f); }
@@ -769,10 +770,10 @@ function icsData(ms){ const d = new Date(ms); return d.getUTCFullYear()+pad(d.ge
 function icsTxt(t){ return String(t).replace(/\\/g,"\\\\").replace(/;/g,"\;").replace(/,/g,"\\,").replace(/\n/g,"\\n"); }
 function lembrete(lastAt){
   const next = lastAt + S.cfg.intervalMin*MIN;
-  if (next <= Date.now()) { toast("O horário da próxima mamada já passou.", null); return; }
+  if (next <= Date.now()) { toast("O horário da próxima mamadeira já passou.", null); return; }
   const nome = S.cfg.nomeBebe || "bebê";
   const last = S.recent.find(f=>f.at===lastAt);
-  const desc = "Última mamada às "+hm(lastAt)+(last ? (last.tipo==="mamadeira" ? " (mamadeira"+(last.ml?" "+last.ml+" ml":"")+")" : " (peito)") : "")+". Intervalo de "+dur(S.cfg.intervalMin)+".";
+  const desc = "Última mamadeira às "+hm(lastAt)+(last && last.ml ? " ("+last.ml+" ml)" : "")+". Intervalo de "+dur(S.cfg.intervalMin)+" entre mamadeiras.";
   const ics = [
     "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Diario de Mamadas//PT-BR","CALSCALE:GREGORIAN","METHOD:PUBLISH",
     "BEGIN:VEVENT",
@@ -780,10 +781,10 @@ function lembrete(lastAt){
     "DTSTAMP:"+icsData(Date.now()),
     "DTSTART:"+icsData(next),
     "DTEND:"+icsData(next + 15*MIN),
-    "SUMMARY:"+icsTxt("Hora de alimentar o "+nome),
+    "SUMMARY:"+icsTxt("Hora da mamadeira do "+nome),
     "DESCRIPTION:"+icsTxt(desc),
-    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsTxt("Hora de alimentar o "+nome),"TRIGGER:PT0M","END:VALARM",
-    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsTxt("Faltam 10 min para alimentar o "+nome),"TRIGGER:-PT10M","END:VALARM",
+    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsTxt("Hora da mamadeira do "+nome),"TRIGGER:PT0M","END:VALARM",
+    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsTxt("Faltam 10 min para a mamadeira do "+nome),"TRIGGER:-PT10M","END:VALARM",
     "END:VEVENT","END:VCALENDAR",""
   ].join("\r\n");
   const url = URL.createObjectURL(new Blob([ics], {type:"text/calendar;charset=utf-8"}));
@@ -863,7 +864,7 @@ $("form").addEventListener("submit", async e=>{
   if (!form.editId && $("f-burp").checked && Date.now() - at < 30*MIN) startBurp(at);
   $("f-save").disabled = true;
   const id = form.editId || newId(), novo = !form.editId;
-  try { await putFeed(id, data); closeForm(); toast((novo ? (form.tipo==="mamadeira" ? "Mamadeira de "+data.ml+" ml" : "Peito ("+QN[data.qual].toLowerCase()+")")+" registrado" : "Registro atualizado")+" às "+hm(at), novo ? id : null, novo ? at : null); }
+  try { await putFeed(id, data); closeForm(); toast((novo ? (form.tipo==="mamadeira" ? "Mamadeira de "+data.ml+" ml" : "Peito ("+QN[data.qual].toLowerCase()+")")+" registrado" : "Registro atualizado")+" às "+hm(at), novo ? id : null, novo && form.tipo==="mamadeira" ? at : null); }
   catch(x){ err("Não foi possível salvar. Confira a conexão e tente de novo."); }
   $("f-save").disabled = false;
 });
@@ -942,8 +943,8 @@ function repKV(R){
     [t.p, "mamadas no peito"], [t.qs+" / "+t.qm+" / "+t.qp, "satisfatório / médio / pouco"],
     [t.m, "mamadeiras"], [t.ml.toLocaleString("pt-BR")+" ml", "fórmula no período"],
     [Math.round(t.ml/R.nd)+" ml", "fórmula por dia (média)"], [t.m ? Math.round(t.ml/t.m)+" ml" : "–", "por mamadeira (média)"],
-    [fmt((t.p+t.m)/R.nd), "mamadas por dia (média)"], [R.gapAvg!=null ? dur(R.gapAvg) : "–", "intervalo médio entre mamadas"],
-    [R.ng ? Math.round(R.c.o/R.ng*100)+"%" : "–", "mamadas no horário (meta "+iv+")"], [R.c.a+" antes · "+R.c.d+" depois", "fora do horário"]
+    [fmt((t.p+t.m)/R.nd), "mamadas por dia (média)"], [R.gapAvg!=null ? dur(R.gapAvg) : "–", "intervalo médio entre mamadeiras"],
+    [R.ng ? Math.round(R.c.o/R.ng*100)+"%" : "–", "mamadeiras no horário (meta "+iv+")"], [R.c.a+" antes · "+R.c.d+" depois", "fora do horário"]
   ];
 }
 $("r-gerar").addEventListener("click", async ()=>{
@@ -972,7 +973,7 @@ function renderReport(R){
   $("r-sp").textContent = "Peito "+R.pctP+"%"; $("r-sm").textContent = "Mamadeira "+R.pctM+"%";
   $("r-bar").innerHTML = splitHTML(R.t);
   $("r-kv").innerHTML = repKV(R).map(([v,l])=>`<div><b>${esc(String(v))}</b><span>${esc(l)}</span></div>`).join("");
-  $("r-tab").innerHTML = `<thead><tr><th>Vida</th><th>Data</th><th class="r">Peito</th><th class="r">S/M/P</th><th class="r">Mamad.</th><th class="r">Fórmula</th><th class="r">ml/mamad.</th><th class="r">Interv. médio</th></tr></thead><tbody>`+
+  $("r-tab").innerHTML = `<thead><tr><th>Vida</th><th>Data</th><th class="r">Peito</th><th class="r">S/M/P</th><th class="r">Mamad.</th><th class="r">Fórmula</th><th class="r">ml/mamad.</th><th class="r">Interv. mamad.</th></tr></thead><tbody>`+
     R.days.map(d=>`<tr><td><b>${vidaCurto(d.v)}</b></td><td>${WD[new Date(d.k).getDay()]} ${dBRs(d.k)}</td><td class="r">${d.p}</td><td class="r">${d.qs}/${d.qm}/${d.qp}</td><td class="r">${d.m}</td><td class="r">${d.ml} ml</td><td class="r">${d.m?Math.round(d.ml/d.m)+" ml":"–"}</td><td class="r">${d.gapAvg!=null?dur(d.gapAvg):"–"}</td></tr>`).join("")+`</tbody>`;
   if (!R.list.length) $("r-hint").textContent = "Nenhuma mamada registrada neste período.";
   try{ const f = new File([new Blob(["x"])], "t.pdf", {type:"application/pdf"}); $("r-share").hidden = !(navigator.canShare && navigator.canShare({files:[f]})); }catch(e){ $("r-share").hidden = true; }
@@ -994,7 +995,7 @@ async function makePDF(R){
   doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...MUT);
   doc.text("Nascimento: "+dBR(nasc())+" às "+hm(nasc())+"   ·   Período: "+dBR(R.s)+" a "+dBR(R.e-1)+" ("+vidaCurto(vida(R.s))+" a "+vidaCurto(vida(R.e-1))+" de vida)", M, y); y += 12;
   doc.text("Gerado em "+dBR(Date.now())+" às "+hm(Date.now())+"   ·   Dias de vida contados por data: dia do nascimento = 0", M, y); y += 12;
-  doc.text("Intervalo combinado entre mamadas (peito ou mamadeira): "+dur(S.cfg.intervalMin)+" (tolerância de "+(S.cfg.tolMin||20)+" min)", M, y); y += 20;
+  doc.text("Intervalo combinado entre mamadeiras (o peito não entra nessa conta): "+dur(S.cfg.intervalMin)+" (tolerância de "+(S.cfg.tolMin||20)+" min)", M, y); y += 20;
 
   // barra peito × mamadeira
   doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...INK);
@@ -1034,7 +1035,7 @@ async function makePDF(R){
 
   // dia a dia
   doc.autoTable({ startY: y, margin:{left:M, right:M},
-    head:[["Dias de vida","Data","Peito","Satisf./Médio/Pouco","Mamadeiras","Fórmula","ml por mamadeira","Intervalo médio"]],
+    head:[["Dias de vida","Data","Peito","Satisf./Médio/Pouco","Mamadeiras","Fórmula","ml por mamadeira","Intervalo entre mamadeiras"]],
     body: R.days.map(d=>[vidaCurto(d.v), WD[new Date(d.k).getDay()]+" "+dBRs(d.k), d.p, d.qs+" / "+d.qm+" / "+d.qp, d.m, d.ml+" ml", d.m?Math.round(d.ml/d.m)+" ml":"-", d.gapAvg!=null?dur(d.gapAvg):"-"]),
     foot:[["Total","", R.t.p, R.t.qs+" / "+R.t.qm+" / "+R.t.qp, R.t.m, R.t.ml+" ml", R.t.m?Math.round(R.t.ml/R.t.m)+" ml":"-", R.gapAvg!=null?dur(R.gapAvg):"-"]],
     styles:{font:"helvetica", fontSize:9, textColor:INK, lineColor:LINE, lineWidth:.5},
@@ -1055,7 +1056,7 @@ async function makePDF(R){
     doc.addPage();
     doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor(...INK); doc.text("Todas as mamadas do período", M, M+6);
     doc.autoTable({ startY: M+18, margin:{left:M, right:M},
-      head:[["Vida","Data","Hora","Tipo","Fórmula / como foi","Desde a mamada anterior","Observação"]],
+      head:[["Vida","Data","Hora","Tipo","Fórmula / como foi","Desde a mamadeira anterior","Observação"]],
       body: R.list.map(f=>{ const isM = f.tipo==="mamadeira", gg = R.g.get(f.id);
         return [vidaCurto(vida(f.at)), dBRs(f.at), hm(f.at), isM?"Mamadeira":"Peito", isM ? (f.ml||0)+" ml" : (QN[f.qual]||"-"),
           gg ? dur(gg.gap)+(gg.cls==="o"?" (no horário)":gg.cls==="a"?" (antes)":" (depois)") : "-", f.nota||""]; }),
