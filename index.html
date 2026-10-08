@@ -392,9 +392,9 @@ textarea{resize:vertical;min-height:56px}
       <button type="button" data-v="peito">Peito</button><button type="button" data-v="mamadeira">Mamadeira</button>
     </div>
     <div id="f-bottle" class="field">
-      <span>Fórmula (ml)</span>
-      <input type="number" id="f-ml" inputmode="numeric" min="1" max="400" step="1" placeholder="Ex.: 30">
-      <div class="quick" id="f-ml-quick"></div>
+      <span>Fórmula (ml) <span class="muted" style="font-weight:600" id="f-ml-ult"></span></span>
+      <select id="f-ml-sel" style="font-size:1.15rem;font-weight:800"></select>
+      <input type="number" id="f-ml" inputmode="numeric" min="1" max="400" step="1" placeholder="Digite o volume em ml" hidden>
     </div>
     <div id="f-breast" class="field" hidden>
       <span>Como foi a mamada?</span>
@@ -807,30 +807,39 @@ $("add-breast").addEventListener("click", ()=>openForm("peito"));
 /* formulário */
 let form = { tipo:"mamadeira", editId:null, int:null, qual:"" };
 function setSeg(el, v){ for (const b of el.children) b.setAttribute("aria-pressed", String(b.dataset.v===v)); }
-function quickMl(){
-  const recent = [...new Set(S.recent.filter(f=>f.tipo==="mamadeira"&&f.ml).map(f=>+f.ml))].slice(0,3);
-  const vals = [...new Set([15,30,45,60,90,120, ...recent])].sort((a,b)=>a-b);
-  const cur = +$("f-ml").value;
-  $("f-ml-quick").innerHTML = vals.map(v=>`<button type="button" data-ml="${v}" aria-pressed="${cur===v}">${v} ml</button>`).join("");
+// lista de volumes: 10 a 120 ml, de 5 em 5, mais "Outro valor"
+const ML_LISTA = []; for (let v=10; v<=120; v+=5) ML_LISTA.push(v);
+$("f-ml-sel").innerHTML = `<option value="">Escolha o volume</option>` + ML_LISTA.map(v=>`<option value="${v}">${v} ml</option>`).join("") + `<option value="outro">Outro valor…</option>`;
+function setMl(v){
+  v = +v || 0;
+  if (!v){ $("f-ml-sel").value = ""; $("f-ml").value = ""; $("f-ml").hidden = true; }
+  else if (ML_LISTA.includes(v)){ $("f-ml-sel").value = String(v); $("f-ml").value = ""; $("f-ml").hidden = true; }
+  else { $("f-ml-sel").value = "outro"; $("f-ml").value = v; $("f-ml").hidden = false; }
 }
+function quickMl(){
+  const ult = S.recent.find(f=>f.tipo==="mamadeira" && f.ml);
+  $("f-ml-ult").textContent = ult ? "· última: "+ult.ml+" ml" : "";
+}
+$("f-ml-sel").addEventListener("change", ()=>{
+  const outro = $("f-ml-sel").value === "outro";
+  $("f-ml").hidden = !outro;
+  if (outro) setTimeout(()=>$("f-ml").focus(), 30);
+});
 function setTipo(t){ form.tipo = t; setSeg($("f-tipo"), t); $("f-bottle").hidden = t!=="mamadeira"; $("f-breast").hidden = t!=="peito"; $("f-save").className = "btn "+(t==="peito"?"rose":"primary"); }
 function openForm(tipo, f, at){
   form.editId = f ? f.id : null; form.int = f && f.int ? f.int : null;
   $("form-title").textContent = f ? "Editar registro" : "Nova mamada";
   $("f-at").value = toInput(f ? f.at : (at ?? Date.now()));
-  $("f-ml").value = f && f.ml ? f.ml : "";
+  setMl(f && f.ml ? f.ml : 0);
   $("f-nota").value = f && f.nota ? f.nota : "";
   form.qual = f && f.qual ? f.qual : ""; setSeg($("f-qual"), form.qual);
   $("f-burp-row").hidden = !!f; $("f-burp").checked = !f && (at==null);
   $("f-err").hidden = true; quickMl(); setTipo(tipo);
   $("form-bg").hidden = false;
-  if (tipo==="mamadeira" && !f) setTimeout(()=>$("f-ml").focus(), 60);
 }
 function closeForm(){ $("form-bg").hidden = true; }
 $("f-qual").addEventListener("click", e=>{ const b = e.target.closest("button"); if (b){ form.qual = b.dataset.v; setSeg($("f-qual"), form.qual); } });
 $("f-tipo").addEventListener("click", e=>{ const b = e.target.closest("button"); if (b) setTipo(b.dataset.v); });
-$("f-ml-quick").addEventListener("click", e=>{ const b = e.target.closest("button"); if (b){ $("f-ml").value = b.dataset.ml; quickMl(); } });
-$("f-ml").addEventListener("input", quickMl);
 $("form-close").addEventListener("click", closeForm);
 $("form-bg").addEventListener("click", e=>{ if (e.target===$("form-bg")) closeForm(); });
 $("form").addEventListener("submit", async e=>{
@@ -841,8 +850,10 @@ $("form").addEventListener("submit", async e=>{
   if (at > Date.now() + 5*MIN) return err("O horário está no futuro. Ajuste para quando a mamada aconteceu.");
   const data = { tipo: form.tipo, at, nota: $("f-nota").value.trim() };
   if (form.tipo==="mamadeira"){
-    const ml = parseInt($("f-ml").value, 10);
-    if (!(ml>=1 && ml<=400)) return err("Informe quantos ml de fórmula foram dados (entre 1 e 400).");
+    const sel = $("f-ml-sel").value;
+    if (!sel) return err("Escolha na lista quantos ml de fórmula foram dados.");
+    const ml = parseInt(sel === "outro" ? $("f-ml").value : sel, 10);
+    if (!(ml>=1 && ml<=400)) return err("Digite um volume entre 1 e 400 ml.");
     data.ml = ml;
   } else {
     if (!form.qual) return err("Escolha como foi a mamada: satisfatório, médio ou pouco.");

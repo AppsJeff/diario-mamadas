@@ -1,6 +1,6 @@
 // Guarda o app no aparelho para abrir rápido e funcionar sem internet.
 // Ao publicar uma versão nova, aumente o número abaixo.
-const CACHE = "mamadas-v7";
+const CACHE = "mamadas-v8";
 const SHELL = ["./", "index.html", "config.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
 
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); self.skipWaiting(); });
