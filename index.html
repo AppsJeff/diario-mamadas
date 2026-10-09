@@ -300,7 +300,7 @@ textarea{resize:vertical;min-height:56px}
 
   <section class="card" id="period">
     <div class="seg" id="view-seg" role="group" aria-label="Período">
-      <button type="button" data-v="semana">Semana</button><button type="button" data-v="mes">Mês</button><button type="button" data-v="ano">Ano</button>
+      <button type="button" data-v="dia">Dia</button><button type="button" data-v="semana">Semana</button><button type="button" data-v="mes">Mês</button><button type="button" data-v="ano">Ano</button>
     </div>
     <div class="nav">
       <button type="button" id="prev" aria-label="Período anterior">‹</button>
@@ -464,12 +464,15 @@ const fmt = n => n.toLocaleString("pt-BR", {maximumFractionDigits:1});
 
 function period(){
   const d = new Date(S.anchor);
+  if (S.view==="dia"){ const s = sod(S.anchor); return {s, e: addDays(s,1)}; }
   if (S.view==="semana"){ const s = addDays(sod(S.anchor), -((d.getDay()+6)%7)); return {s, e: addDays(s,7)}; }
   if (S.view==="mes"){ return {s: new Date(d.getFullYear(), d.getMonth(), 1).getTime(), e: new Date(d.getFullYear(), d.getMonth()+1, 1).getTime()}; }
   return {s: new Date(d.getFullYear(),0,1).getTime(), e: new Date(d.getFullYear()+1,0,1).getTime()};
 }
 function periodLabel(p){
   const a = new Date(p.s), b = new Date(p.e-1);
+  if (S.view==="dia"){ const t = sod(Date.now()), v = vida(p.s);
+    return (p.s===t ? "Hoje" : p.s===addDays(t,-1) ? "Ontem" : WD[a.getDay()]+", "+a.getDate()+" "+MO[a.getMonth()]) + (v >= 0 ? " · "+vidaCurto(v) : ""); }
   if (S.view==="semana") return a.getDate()+(a.getMonth()!==b.getMonth()?" "+MO[a.getMonth()]:"")+" – "+b.getDate()+" "+MO[b.getMonth()]+(b.getFullYear()!==new Date().getFullYear()?" "+b.getFullYear():"");
   if (S.view==="mes") return MOL[a.getMonth()]+" "+a.getFullYear();
   return String(a.getFullYear());
@@ -624,7 +627,22 @@ function renderPeriod(){
   for (const f of list){ const k = sod(f.at); if (!byDay.has(k)) byDay.set(k, []); byDay.get(k).push(f); }
   const today = sod(now), viz = $("viz");
 
-  if (S.view==="semana"){
+  if (S.view==="dia"){
+    const W = 340, H = 92, L = 10, R = 10, y0 = 46, x = ms => L + (W-L-R) * ((ms - p.s) / DAY);
+    let g = `<line x1="${L}" x2="${W-R}" y1="${y0}" y2="${y0}" stroke="var(--line)" stroke-width="2" stroke-linecap="round"/>`;
+    for (let h=0; h<=24; h+=3){ const xx = x(p.s + h*60*MIN);
+      g += `<line x1="${xx}" x2="${xx}" y1="${y0-4}" y2="${y0+4}" stroke="var(--line)" stroke-width="1.5"/><text x="${xx}" y="${H-4}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--muted)">${pad(h%24)}h</text>`; }
+    if (p.s === today){ const xn = x(now); g += `<line x1="${xn}" x2="${xn}" y1="10" y2="${y0+12}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="3 3"/><text x="${Math.min(W-R-12, Math.max(L+12, xn))}" y="9" text-anchor="middle" font-size="9" font-weight="800" fill="var(--ink)">agora</text>`; }
+    for (const f of list){
+      const xx = x(f.at);
+      if (f.tipo==="mamadeira"){ const r = 5 + Math.min(7, (+f.ml||0)/20);
+        g += `<circle cx="${xx}" cy="${y0}" r="${r}" fill="var(--bottle)"/><text x="${xx}" y="${y0-r-4}" text-anchor="middle" font-size="9.5" font-weight="800" fill="var(--bottle)">${f.ml||0}</text>`; }
+      else { const c = f.qual==="m" ? "var(--breast-mid)" : f.qual==="p" ? "var(--breast-low)" : "var(--breast)";
+        g += `<rect x="${xx-4.5}" y="${y0+9}" width="9" height="9" rx="2.5" fill="${c}"/>`; }
+    }
+    viz.innerHTML = `<div class="chart-wrap" style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;min-width:300px" role="img" aria-label="Mamadas ao longo do dia">${g}</svg></div>`;
+    $("viz-hint").textContent = "Círculo azul: mamadeira (número = ml). Quadrado rosa: peito. Os horários estão na lista abaixo.";
+  } else if (S.view==="semana"){
     let max = 1; for (let i=0;i<7;i++){ const tt = tally(byDay.get(addDays(p.s,i))||[]); max = Math.max(max, tt.p+tt.m); }
     let h = `<div class="week">`;
     for (let i=0;i<7;i++){
@@ -692,10 +710,13 @@ function renderAll(){
 
 /* ---------- interações ---------- */
 $("view-seg").addEventListener("click", e=>{ const b = e.target.closest("button"); if (!b || b.dataset.v===S.view) return;
-  S.view = b.dataset.v; S.anchor = S.sel ?? Date.now(); renderPeriod(); loadPeriod(); });
+  S.view = b.dataset.v; S.anchor = S.sel ?? Date.now();
+  if (S.view==="dia") S.sel = sod(S.anchor);
+  renderPeriod(); loadPeriod(); });
 function shift(dir){
   const d = new Date(S.anchor);
-  if (S.view==="semana") S.anchor = addDays(S.anchor, 7*dir);
+  if (S.view==="dia"){ S.anchor = addDays(sod(S.anchor), dir); S.sel = S.anchor; S.confirmId = null; }
+  else if (S.view==="semana") S.anchor = addDays(S.anchor, 7*dir);
   else if (S.view==="mes") S.anchor = new Date(d.getFullYear(), d.getMonth()+dir, 1).getTime();
   else S.anchor = new Date(d.getFullYear()+dir, 0, 1).getTime();
   S.range = []; renderPeriod(); loadPeriod();
