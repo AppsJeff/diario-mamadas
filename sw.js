@@ -1,6 +1,6 @@
 // Guarda o app no aparelho para abrir rápido e funcionar sem internet.
 // Ao publicar uma versão nova, aumente o número abaixo.
-const CACHE = "mamadas-v10";
+const CACHE = "mamadas-v11";
 const SHELL = ["./", "index.html", "config.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
 
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); self.skipWaiting(); });
@@ -18,6 +18,6 @@ self.addEventListener("fetch", e => {
   }
   // Arquivos do próprio app: tenta a internet primeiro, usa a cópia se estiver sem conexão
   if (url.origin === location.origin) {
-    e.respondWith(fetch(req).then(res => { const cp = res.clone(); caches.open(CACHE).then(c => c.put(req, cp)); return res; }).catch(() => caches.match(req).then(r => r || caches.match("index.html"))));
+    e.respondWith(fetch(req, {cache: "no-store"}).then(res => { const cp = res.clone(); caches.open(CACHE).then(c => c.put(req, cp)); return res; }).catch(() => caches.match(req).then(r => r || caches.match("index.html"))));
   }
 });
