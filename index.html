@@ -18,7 +18,7 @@
 /* Layout: coluna única de app — próxima mamadeira, registro rápido, período (semana/mês/ano) com calendário, detalhe do dia. */
 :root{
   --bg:#EFF2F8; --surface:#FFFFFF; --surface-2:#F5F7FB; --ink:#1B2232; --muted:#5D6780; --line:#DAE0EC;
-  --bottle:#2F67C9; --bottle-soft:#E3ECFB; --breast:#B64A73; --breast-soft:#F8E5EC; --breast-mid:#D98BA8; --breast-low:#EFC9D7;
+  --bottle:#2F67C9; --bottle-soft:#E3ECFB; --breast:#B64A73; --breast-soft:#F8E5EC; --breast-mid:#D98BA8; --breast-low:#EFC9D7; --sleep:#5552C9; --sleep-soft:#E8E7FA; --sleep-mid:#9C9AE8;
   --ok:#23805A; --ok-soft:#E0F2E9; --warn:#B85D12; --warn-soft:#FBEBDC; --late:#B33A3A; --late-soft:#F9E1E1;
   --shadow:0 1px 2px rgba(27,34,50,.06),0 6px 20px rgba(27,34,50,.06);
   --f-display:"Bricolage Grotesque",ui-rounded,"Segoe UI",system-ui,sans-serif;
@@ -26,12 +26,12 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0F121A; --surface:#181D29; --surface-2:#1F2533; --ink:#E5E8F1; --muted:#97A0B6; --line:#2A3142;
-  --bottle:#86A9EE; --bottle-soft:#1F2C47; --breast:#E98DAF; --breast-soft:#3A2230; --breast-mid:#B06A88; --breast-low:#6E4153;
+  --bottle:#86A9EE; --bottle-soft:#1F2C47; --breast:#E98DAF; --breast-soft:#3A2230; --breast-mid:#B06A88; --breast-low:#6E4153; --sleep:#A9A7F5; --sleep-soft:#25244A; --sleep-mid:#6D6BC4;
   --ok:#6CC99B; --ok-soft:#183427; --warn:#F1A35E; --warn-soft:#3A2A1A; --late:#F08A8A; --late-soft:#3B1E22;
   --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0F121A; --surface:#181D29; --surface-2:#1F2533; --ink:#E5E8F1; --muted:#97A0B6; --line:#2A3142;
-  --bottle:#86A9EE; --bottle-soft:#1F2C47; --breast:#E98DAF; --breast-soft:#3A2230; --breast-mid:#B06A88; --breast-low:#6E4153;
+  --bottle:#86A9EE; --bottle-soft:#1F2C47; --breast:#E98DAF; --breast-soft:#3A2230; --breast-mid:#B06A88; --breast-low:#6E4153; --sleep:#A9A7F5; --sleep-soft:#25244A; --sleep-mid:#6D6BC4;
   --ok:#6CC99B; --ok-soft:#183427; --warn:#F1A35E; --warn-soft:#3A2A1A; --late:#F08A8A; --late-soft:#3B1E22;
   --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark}
 
@@ -156,7 +156,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .entry .dd{min-width:0;display:flex;flex-direction:column;gap:2px}
 .entry .nt{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
 .chip{display:inline-block;font-size:.72rem;font-weight:800;border-radius:6px;padding:2px 7px;margin-right:6px;vertical-align:1px}
-.chip.m{background:var(--bottle-soft);color:var(--bottle)} .chip.p{background:var(--breast-soft);color:var(--breast)}
+.chip.m{background:var(--bottle-soft);color:var(--bottle)} .stat b.sl{color:var(--sleep)} .chip.p{background:var(--breast-soft);color:var(--breast)}
 .gap{font-size:.75rem;font-weight:700}
 .gap.o{color:var(--ok)} .gap.a{color:var(--warn)} .gap.d{color:var(--late)}
 .entry-btns{display:flex;gap:4px}
@@ -166,6 +166,28 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .empty{text-align:center;padding:14px 8px;color:var(--muted);font-size:.9rem}
 .btn{border:none;border-radius:12px;padding:10px 16px;font-weight:800}
 .btn.primary{background:var(--bottle);color:var(--surface)} .btn.rose{background:var(--breast);color:var(--surface)}
+.btn.sleep{background:var(--sleep);color:var(--surface)} .btn.warn{background:var(--warn-soft);color:var(--warn);border:1.5px solid var(--warn)}
+.act.nap{background:var(--sleep-soft);color:var(--sleep);border:1.5px solid var(--sleep)}
+.act.night{background:var(--sleep);color:var(--surface)}
+.sono-card{background:var(--surface);border:2px solid var(--sleep);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
+.sono-card.awake{border-color:var(--warn)}
+.sono-top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.sono-card .clock{font-family:var(--f-display);font-size:2.6rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:var(--sleep)}
+.sono-card.awake .clock{color:var(--warn)}
+.sono-sub{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.sono-btns{display:flex;gap:8px;flex-wrap:wrap}
+.mot-btns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.mot-btns button{border:1.5px solid var(--warn);background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:14px 4px;font-weight:800;font-size:.95rem}
+.chip.s{background:var(--sleep-soft);color:var(--sleep)}
+.desp{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.desp b{color:var(--warn)}
+.desp-head,.desp-row{display:grid;grid-template-columns:1fr 1.25fr 1fr 34px;gap:6px;align-items:center}
+.desp-head{font-size:.72rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.desp-row input,.desp-row select{padding:8px 6px;font-size:.9rem}
+.desp-list{display:flex;flex-direction:column;gap:6px}
+.chk{display:flex;gap:10px;align-items:center;font-weight:700;font-size:.9rem}
+.chk input{width:auto}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap}
 .btn.ghost{background:transparent;border:1px solid var(--line)} .btn.danger{background:var(--late);color:var(--surface)}
 .loading{opacity:.55;transition:opacity .2s}
 
@@ -278,6 +300,12 @@ textarea{resize:vertical;min-height:56px}
     <button class="act bottle" type="button" id="add-bottle">+ Mamadeira<small>Horário, ml e arroto</small></button>
   </section>
 
+  <section class="actions" id="sono-acts">
+    <button class="act nap" type="button" id="sono-soneca">Soneca<small>Toque quando ele dormir</small></button>
+    <button class="act night" type="button" id="sono-noite">Hora de dormir<small>Início do sono da noite</small></button>
+  </section>
+  <section class="sono-card" id="sono-card" hidden aria-live="polite"></section>
+
   <section class="burp-idle" id="burp-start">
     <div class="burp-idle-top"><b>Cronômetro de arroto</b><button class="btn primary" type="button" id="burp-go" style="padding:8px 16px">Iniciar <span id="burp-dur">20 min</span></button></div>
     <div class="burp-tempos" id="burp-tempos-idle" role="group" aria-label="Tempo de espera para arrotar"><button type="button" data-min="20">20 min</button><button type="button" data-min="30">30 min</button><button type="button" data-min="40">40 min</button><button type="button" data-min="50">50 min</button></div>
@@ -335,6 +363,12 @@ textarea{resize:vertical;min-height:56px}
       </div>
     </div>
 
+    <div class="interval" id="sono-box" hidden>
+      <div class="int-head"><span class="label" style="color:var(--sleep)">Sono</span><span class="muted" style="font-size:.8rem" id="sb-sub"></span></div>
+      <div class="stats" id="sb-stats"></div>
+      <div class="int-leg" id="sb-mot"></div>
+    </div>
+
     <div id="viz"></div>
     <p class="hint" id="viz-hint"></p>
   </section>
@@ -342,7 +376,7 @@ textarea{resize:vertical;min-height:56px}
   <section class="card" id="day-card">
     <div class="day-head"><h2 id="d-title">Hoje</h2><span class="muted num" style="font-size:.82rem" id="d-sum"></span></div>
     <div class="entries" id="entries"></div>
-    <button class="mini" type="button" id="add-past" style="align-self:flex-start">+ Registrar neste dia</button>
+    <div class="row-btns"><button class="mini" type="button" id="add-past">+ Mamada neste dia</button><button class="mini" type="button" id="add-sono-past">+ Sono neste dia</button></div>
   </section>
 
   </div>
@@ -359,20 +393,32 @@ textarea{resize:vertical;min-height:56px}
       </div>
       <label class="field"><span>Nome do bebê <span class="muted" style="font-weight:600">(aparece no PDF)</span></span><input type="text" id="r-nome" maxlength="60" placeholder="Ex.: Ethan"></label>
       <label class="field"><span>Observações para a médica <span class="muted" style="font-weight:600">(opcional)</span></span><textarea id="r-obs" maxlength="800" placeholder="Ex.: tem regurgitado depois da mamadeira da noite"></textarea></label>
-      <label style="display:flex;gap:10px;align-items:center;font-weight:700;font-size:.9rem"><input type="checkbox" id="r-lista" style="width:auto" checked> Incluir a lista de todas as mamadas</label>
+      <div class="field"><span>O que entra no relatório</span>
+        <label class="chk"><input type="checkbox" id="r-inc-ali" checked> Alimentação (peito e mamadeira)</label>
+        <label class="chk" style="padding-left:26px;font-weight:600" id="r-lista-row"><input type="checkbox" id="r-lista" checked> com a lista de todas as mamadas</label>
+        <label class="chk"><input type="checkbox" id="r-inc-sono" checked> Sono (noites, despertares e sonecas)</label>
+        <label class="chk" style="padding-left:26px;font-weight:600" id="r-lista-sono-row"><input type="checkbox" id="r-lista-sono" checked> com a lista de cada noite e soneca</label>
+      </div>
       <div class="err" id="r-err" hidden></div>
       <button class="btn primary" type="button" id="r-gerar">Gerar relatório</button>
     </section>
 
     <section class="card" id="r-out" hidden>
       <div class="day-head"><h2 id="r-titulo">Resumo</h2><span class="muted num" style="font-size:.82rem" id="r-per"></span></div>
-      <div class="split">
-        <div class="split-legend"><span class="p" id="r-sp">Peito</span><span class="m" id="r-sm">Mamadeira</span></div>
-        <div class="split-bar" id="r-bar" aria-hidden="true"></div>
+      <div id="r-ali" style="display:flex;flex-direction:column;gap:12px">
+        <h3>Alimentação</h3>
+        <div class="split">
+          <div class="split-legend"><span class="p" id="r-sp">Peito</span><span class="m" id="r-sm">Mamadeira</span></div>
+          <div class="split-bar" id="r-bar" aria-hidden="true"></div>
+        </div>
+        <div class="rep-kv" id="r-kv"></div>
+        <div class="rep-table-wrap"><table class="rep-table" id="r-tab"></table></div>
       </div>
-      <div class="rep-kv" id="r-kv"></div>
-      <h3>Dia a dia</h3>
-      <div class="rep-table-wrap"><table class="rep-table" id="r-tab"></table></div>
+      <div id="r-sono" style="display:flex;flex-direction:column;gap:12px">
+        <h3 style="color:var(--sleep)">Sono</h3>
+        <div class="rep-kv" id="r-skv"></div>
+        <div class="rep-table-wrap"><table class="rep-table" id="r-stab"></table></div>
+      </div>
       <div class="rep-actions">
         <button class="btn primary" type="button" id="r-pdf">Baixar PDF</button>
         <button class="btn rose" type="button" id="r-share" hidden>Enviar PDF</button>
@@ -405,6 +451,27 @@ textarea{resize:vertical;min-height:56px}
     <label class="field"><span>Observação <span class="muted" style="font-weight:600">(opcional)</span></span><textarea id="f-nota" maxlength="200" placeholder="Ex.: sobrou um pouco, regurgitou"></textarea></label>
     <div class="err" id="f-err" hidden></div>
     <button class="btn primary" type="submit" id="f-save">Salvar</button>
+  </form>
+</div>
+
+<!-- Sono: registrar ou editar -->
+<div class="sheet-bg" id="sf-bg" hidden>
+  <form class="sheet" id="sf" novalidate>
+    <div class="sheet-head"><h2 id="sf-title">Registrar sono</h2><button type="button" class="mini" id="sf-close">Fechar</button></div>
+    <div class="seg" id="sf-tipo"><button type="button" data-v="soneca">Soneca</button><button type="button" data-v="noite">Noite</button></div>
+    <div style="display:grid;grid-template-columns:1fr;gap:10px">
+      <label class="field"><span>Dormiu</span><input type="datetime-local" id="sf-ini"></label>
+      <label class="field"><span>Acordou</span><input type="datetime-local" id="sf-fim"></label>
+    </div>
+    <div class="field" id="sf-desp-box">
+      <span>Despertares durante a noite</span>
+      <div class="desp-head"><span>Acordou</span><span>Motivo</span><span>Voltou a dormir</span><span></span></div>
+      <div class="desp-list" id="sf-desp"></div>
+      <button type="button" class="mini" id="sf-desp-add" style="align-self:flex-start">+ Despertar</button>
+    </div>
+    <label class="field"><span>Observação <span class="muted" style="font-weight:600">(opcional)</span></span><textarea id="sf-nota" maxlength="200" placeholder="Ex.: chorou bastante antes de dormir"></textarea></label>
+    <div class="err" id="sf-err" hidden></div>
+    <button class="btn sleep" type="submit" id="sf-save">Salvar</button>
   </form>
 </div>
 
@@ -525,7 +592,8 @@ async function fetchRange(s, e){
 async function loadPeriod(){
   const tok = ++rangeToken, p = period();
   S.loading = true; $("period").classList.add("loading");
-  try { const r = await fetchRange(p.s, p.e); if (tok!==rangeToken) return; S.range = r.sort((a,b)=>a.at-b.at); }
+  try { const r = await fetchRange(addDays(p.s,-1), p.e); if (tok!==rangeToken) return;
+    S.range = r.filter(f => f.at >= p.s || isSono(f)).sort((a,b)=>a.at-b.at); }
   catch(e){ if (tok===rangeToken) $("viz-hint").textContent = "Não foi possível carregar este período. Confira a conexão."; }
   if (tok!==rangeToken) return;
   S.loading = false; $("period").classList.remove("loading");
@@ -590,7 +658,8 @@ function renderPeriod(){
   for (const b of $("view-seg").children) b.setAttribute("aria-pressed", String(b.dataset.v===S.view));
   $("p-label").textContent = periodLabel(p);
   $("next").disabled = p.e > now;
-  const list = S.range, t = tally(list), tot = t.p + t.m;
+  const list = S.range.filter(f => isFeed(f) && f.at >= p.s && f.at < p.e), t = tally(list), tot = t.p + t.m;
+  renderSonoBox(p);
 
   const wt = t.pw + t.m;
   $("sp-l").textContent = "Peito "+t.p+(wt?" · "+Math.round(t.pw/wt*100)+"%":"");
@@ -628,11 +697,19 @@ function renderPeriod(){
   const today = sod(now), viz = $("viz");
 
   if (S.view==="dia"){
-    const W = 340, H = 92, L = 10, R = 10, y0 = 46, x = ms => L + (W-L-R) * ((ms - p.s) / DAY);
+    const W = 340, H = 116, L = 10, R = 10, y0 = 46, x = ms => L + (W-L-R) * ((ms - p.s) / DAY);
     let g = `<line x1="${L}" x2="${W-R}" y1="${y0}" y2="${y0}" stroke="var(--line)" stroke-width="2" stroke-linecap="round"/>`;
     for (let h=0; h<=24; h+=3){ const xx = x(p.s + h*60*MIN);
       g += `<line x1="${xx}" x2="${xx}" y1="${y0-4}" y2="${y0+4}" stroke="var(--line)" stroke-width="1.5"/><text x="${xx}" y="${H-4}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--muted)">${pad(h%24)}h</text>`; }
     if (p.s === today){ const xn = x(now); g += `<line x1="${xn}" x2="${xn}" y1="10" y2="${y0+12}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="3 3"/><text x="${Math.min(W-R-12, Math.max(L+12, xn))}" y="9" text-anchor="middle" font-size="9" font-weight="800" fill="var(--ink)">agora</text>`; }
+    // faixa do sono (inclui a noite que começou na véspera e o sono em andamento)
+    { const yb = 74, hb = 12, cl = (a,b) => [Math.max(a,p.s), Math.min(b,p.e,now)];
+      g += `<rect x="${L}" y="${yb}" width="${W-L-R}" height="${hb}" rx="3" fill="var(--surface-2)" stroke="var(--line)"/>`;
+      for (const f of sonoTodos(true)){
+        const sg = sonoSegs(f), cor = f.tipo==="soneca" ? "var(--sleep-mid)" : "var(--sleep)";
+        for (const [a0,b0] of sg.dorme){ const [a,b] = cl(a0,b0); if (b>a) g += `<rect x="${x(a)}" y="${yb}" width="${Math.max(1.5,x(b)-x(a))}" height="${hb}" fill="${cor}"/>`; }
+        for (const [a0,b0] of sg.acordado){ const [a,b] = cl(a0,b0); if (b>a) g += `<rect x="${x(a)}" y="${yb+3}" width="${Math.max(2,x(b)-x(a))}" height="${hb-6}" fill="var(--warn)"/>`; }
+      } }
     for (const f of list){
       const xx = x(f.at);
       if (f.tipo==="mamadeira"){ const r = 5 + Math.min(7, (+f.ml||0)/20);
@@ -641,7 +718,7 @@ function renderPeriod(){
         g += `<rect x="${xx-4.5}" y="${y0+9}" width="9" height="9" rx="2.5" fill="${c}"/>`; }
     }
     viz.innerHTML = `<div class="chart-wrap" style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;min-width:300px" role="img" aria-label="Mamadas ao longo do dia">${g}</svg></div>`;
-    $("viz-hint").textContent = "Círculo azul: mamadeira (número = ml). Quadrado rosa: peito. Os horários estão na lista abaixo.";
+    $("viz-hint").textContent = "Círculo azul: mamadeira (número = ml). Quadrado rosa: peito. Faixa roxa: sono da noite; roxo claro: soneca; laranja: acordado durante a noite.";
   } else if (S.view==="semana"){
     let max = 1; for (let i=0;i<7;i++){ const tt = tally(byDay.get(addDays(p.s,i))||[]); max = Math.max(max, tt.p+tt.m); }
     let h = `<div class="week">`;
@@ -685,13 +762,14 @@ function renderDay(){
   $("d-title").textContent = (k===today ? "Hoje" : k===addDays(today,-1) ? "Ontem" : WDL[d.getDay()]+", "+d.getDate()+" "+MO[d.getMonth()]) + (vida(k) >= 0 ? " · "+vidaTxt(vida(k)) : "");
   const p = period();
   const src = (k>=p.s && k<p.e) ? S.range : S.recent;
-  const items = src.filter(f=>sod(f.at)===k).sort((a,b)=>a.at-b.at);
-  const t = tally(items);
-  $("d-sum").textContent = t.p+" peito · "+t.m+" mamadeiras · "+t.ml+" ml";
+  const items = src.filter(f => isFeed(f) ? sod(f.at)===k : (isSono(f) && f.fim!=null && sonoDia(f)===k)).sort((a,b)=>a.at-b.at);
+  const t = tally(items), sr = sonoResumo(items, k, addDays(k,1));
+  $("d-sum").textContent = t.p+" peito · "+t.m+" mamadeiras · "+t.ml+" ml"+(sr.noites+sr.sonecas ? " · sono "+durMs(sr.sonoNoite+sr.sonecaMs) : "");
   const gm = gaps(src.slice().sort((a,b)=>a.at-b.at));
   const box = $("entries");
-  if (!items.length){ box.innerHTML = `<div class="empty">Nenhuma mamada registrada neste dia.</div>`; return; }
+  if (!items.length){ box.innerHTML = `<div class="empty">Nada registrado neste dia.</div>`; return; }
   box.innerHTML = items.slice().reverse().map(f=>{
+    if (isSono(f)) return sonoEntryHTML(f);
     const isM = f.tipo==="mamadeira", g = gm.get(f.id);
     const gapTxt = g ? `<span class="gap ${g.cls}">${dur(g.gap)} depois da anterior · ${g.cls==="o"?"no horário":g.cls==="a"?"antes do intervalo":"passou do intervalo"}</span>` : "";
     return `<div class="entry" data-id="${esc(f.id)}"><span class="t">${hm(f.at)}</span>
@@ -732,12 +810,227 @@ $("entries").addEventListener("click", async e=>{
   const b = e.target.closest("button[data-act]"); if (!b) return;
   const id = b.closest(".entry")?.dataset.id, act = b.dataset.act;
   const all = S.range.concat(S.recent);
-  if (act==="edit"){ const f = all.find(x=>x.id===id); if (f) openForm(f.tipo, f); }
+  if (act==="edit"){ const f = all.find(x=>x.id===id); if (f) (isSono(f) ? openSonoForm(f) : openForm(f.tipo, f)); }
   else if (act==="del"){ S.confirmId = id; renderDay(); }
   else if (act==="del-no"){ S.confirmId = null; renderDay(); }
   else if (act==="del-yes"){ S.confirmId = null; try{ await delFeed(id); }catch(x){ fail(); } renderDay(); }
 });
 function fail(){ $("foot").textContent = "Não foi possível salvar agora. Confira a conexão e tente de novo."; $("foot").style.color = "var(--late)"; }
+
+/* ---------- sono ---------- */
+// Registros de sono ficam na mesma coleção das mamadas: {tipo:"soneca"|"noite", at:início, fim, despertares:[{at, motivo, volta}]}
+const MOT = {fome:"Fome", agitacao:"Agitação", desconforto:"Desconforto"};
+const isFeed = f => f.tipo==="mamadeira" || f.tipo==="peito";
+const isSono = f => f.tipo==="soneca" || f.tipo==="noite";
+const durMs = ms => dur(Math.max(0, ms)/MIN);
+// a noite pertence à data em que começou; se começou de madrugada (antes do meio-dia), conta como a noite do dia anterior
+function sonoDia(f){ const k = sod(f.at); return (f.tipo==="noite" && new Date(f.at).getHours() < 12) ? addDays(k,-1) : k; }
+function sonoSegs(f){
+  const fim = f.fim ?? Date.now();
+  if (f.tipo==="soneca") return {dorme:[[f.at, fim]], acordado:[]};
+  const ds = (f.despertares||[]).slice().sort((a,b)=>a.at-b.at), dorme = [], acordado = []; let cur = f.at;
+  for (const d of ds){ dorme.push([cur, d.at]); const v = d.volta ?? fim; acordado.push([d.at, v]); cur = v; }
+  if (cur < fim) dorme.push([cur, fim]);
+  return {dorme, acordado};
+}
+function noiteCalc(f){
+  const sg = sonoSegs(f), mot = {fome:0, agitacao:0, desconforto:0};
+  for (const d of f.despertares||[]) if (mot[d.motivo]!=null) mot[d.motivo]++;
+  return { sono: sg.dorme.reduce((a,[x,y])=>a+Math.max(0,y-x),0), desp:(f.despertares||[]).length, mot,
+    maior: Math.max(0, ...sg.dorme.map(([x,y])=>y-x)), acordadoMs: sg.acordado.reduce((a,[x,y])=>a+Math.max(0,y-x),0) };
+}
+function sonoResumo(list, s, e){
+  const r = {noites:0, sonoNoite:0, desp:0, mot:{fome:0,agitacao:0,desconforto:0}, maior:0, sonecas:0, sonecaMs:0, dias:0, porDia:new Map()}, vistos = new Set();
+  for (const f of list){
+    if (!isSono(f) || f.fim==null || vistos.has(f.id)) continue; vistos.add(f.id);
+    const k = sonoDia(f); if (k < s || k >= e) continue;
+    if (!r.porDia.has(k)) r.porDia.set(k, {noite:null, nc:null, sonecas:0, sonecaMs:0});
+    const d = r.porDia.get(k);
+    if (f.tipo==="noite"){ const c = noiteCalc(f); r.noites++; r.sonoNoite += c.sono; r.desp += c.desp; for (const m in c.mot) r.mot[m] += c.mot[m]; r.maior = Math.max(r.maior, c.maior);
+      if (!d.noite){ d.noite = f; d.nc = c; } else { d.nc = {sono:d.nc.sono+c.sono, desp:d.nc.desp+c.desp, maior:Math.max(d.nc.maior,c.maior), mot:{fome:d.nc.mot.fome+c.mot.fome, agitacao:d.nc.mot.agitacao+c.mot.agitacao, desconforto:d.nc.mot.desconforto+c.mot.desconforto}}; } }
+    else { r.sonecas++; r.sonecaMs += f.fim - f.at; d.sonecas++; d.sonecaMs += f.fim - f.at; }
+  }
+  r.dias = r.porDia.size;
+  r.diasNoite = 0; r.totalNoiteDias = 0;
+  for (const d of r.porDia.values()) if (d.nc){ r.diasNoite++; r.totalNoiteDias += d.nc.sono + d.sonecaMs; }
+  return r;
+}
+// todos os registros de sono conhecidos (período + recentes), opcionalmente com o sono em andamento
+function sonoTodos(comAtivo){
+  const m = new Map(); for (const f of S.range.concat(S.recent)) if (isSono(f)) m.set(f.id, f);
+  if (comAtivo && S.sono){ const st = S.sono;
+    m.set(st.id, {id:st.id, tipo:st.tipo, at:st.inicio, fim:null,
+      despertares:(st.despertares||[]).concat(st.acordado ? [{at:st.acordado.at, motivo:st.acordado.motivo, volta:null}] : [])}); }
+  return [...m.values()];
+}
+function motTxt(m){ return m.fome+" fome · "+m.agitacao+" agitação · "+m.desconforto+" desconforto"; }
+
+/* quadro do período */
+function renderSonoBox(p){
+  const r = sonoResumo(sonoTodos(false), p.s, p.e), box = $("sono-box");
+  box.hidden = !(r.noites + r.sonecas);
+  if (box.hidden) return;
+  const dia = S.view==="dia", st = (v,l)=>`<div class="stat"><b class="sl">${v}</b><span>${l}</span></div>`;
+  $("sb-sub").textContent = dia ? "noite que começou neste dia" : r.noites+(r.noites===1?" noite":" noites")+" · "+r.sonecas+(r.sonecas===1?" soneca":" sonecas");
+  $("sb-stats").innerHTML = dia
+    ? st(r.noites ? durMs(r.sonoNoite) : "–", "sono da noite") + st(r.noites ? r.desp : "–", "despertares") + st(r.maior ? durMs(r.maior) : "–", "maior trecho dormindo")
+      + st(r.sonecas, "sonecas") + st(durMs(r.sonecaMs), "tempo de soneca") + st(durMs(r.sonoNoite + r.sonecaMs), "sono total")
+    : st(r.noites ? durMs(r.sonoNoite/r.noites) : "–", "sono por noite") + st(r.noites ? fmt(r.desp/r.noites) : "–", "despertares por noite") + st(r.maior ? durMs(r.maior) : "–", "maior trecho dormindo")
+      + st(fmt(r.sonecas/r.dias), "sonecas por dia") + st(durMs(r.sonecaMs/r.dias), "soneca por dia") + st(r.diasNoite ? durMs(r.totalNoiteDias/r.diasNoite) : "–", "sono total por dia");
+  $("sb-mot").textContent = r.desp ? "Motivos dos despertares: "+motTxt(r.mot) : "";
+}
+
+/* lista do dia */
+function sonoEntryHTML(f){
+  const conf = S.confirmId===f.id ? `<div class="confirm"><span>Apagar este registro?</span><button type="button" class="btn danger" data-act="del-yes" style="padding:6px 12px">Apagar</button><button type="button" class="btn ghost" data-act="del-no" style="padding:6px 12px">Cancelar</button></div>` : "";
+  let corpo;
+  if (f.tipo==="soneca") corpo = `<span><span class="chip s">Soneca</span><b class="num">${durMs(f.fim-f.at)}</b></span><span class="desp">dormiu ${hm(f.at)} · acordou ${hm(f.fim)}</span>`;
+  else { const c = noiteCalc(f), ds = (f.despertares||[]).slice().sort((a,b)=>a.at-b.at);
+    corpo = `<span><span class="chip s">Noite</span><b class="num">${durMs(c.sono)} de sono</b></span>
+      <span class="desp">dormiu ${hm(f.at)} · acordou ${hm(f.fim)} · ${c.desp} ${c.desp===1?"despertar":"despertares"}${c.desp?" · maior trecho "+durMs(c.maior):""}</span>`
+      + ds.map(d=>`<span class="desp">${hm(d.at)}–${d.volta?hm(d.volta):"?"} acordado <b>${MOT[d.motivo]||""}</b>${d.volta?" ("+durMs(d.volta-d.at)+")":""}</span>`).join(""); }
+  return `<div class="entry" data-id="${esc(f.id)}"><span class="t">${hm(f.at)}</span><div class="dd">${corpo}${f.nota?`<span class="nt">${esc(f.nota)}</span>`:""}</div>
+    <div class="entry-btns"><button type="button" class="mini" data-act="edit">Editar</button><button type="button" class="mini del" data-act="del">Apagar</button></div>${conf}</div>`;
+}
+
+/* sono em andamento (sincronizado entre os celulares) */
+S.sono = null; S.sonoUI = null; let sonoKey = "";
+function putSono(st){
+  S.sono = st; S.sonoUI = null; renderSono();
+  if (db) db.doc("config/sono").set(st || {ativo:false}).catch(fail);
+  if (S.view==="dia") renderPeriod();
+}
+function sonoInicia(tipo){
+  if (S.sono) return;
+  putSono(tipo==="soneca" ? {ativo:true, tipo, id:newId(), inicio:Date.now()} : {ativo:true, tipo, id:newId(), inicio:Date.now(), despertares:[], acordado:null});
+}
+function sonoDespertou(motivo){ putSono(Object.assign({}, S.sono, {acordado:{at:Date.now(), motivo}})); }
+function sonoVoltou(){ const st = S.sono;
+  putSono(Object.assign({}, st, {acordado:null, despertares:(st.despertares||[]).concat([{at:st.acordado.at, motivo:st.acordado.motivo, volta:Date.now()}])})); }
+function sonoFim(){
+  const st = S.sono; if (!st) return; const now = Date.now();
+  const rec = st.tipo==="soneca" ? {tipo:"soneca", at:st.inicio, fim:now, nota:""}
+    : {tipo:"noite", at:st.inicio, fim: st.acordado ? st.acordado.at : now, despertares: st.despertares||[], nota:""};
+  putFeed(st.id, rec); putSono(null);
+  toast((st.tipo==="soneca" ? "Soneca de "+durMs(rec.fim-rec.at) : "Noite: "+durMs(noiteCalc(rec).sono)+" de sono")+" · acordou às "+hm(rec.fim), st.id);
+}
+function sonoCardHTML(st){
+  const awake = !!st.acordado, n = (st.despertares||[]).length, ui = S.sonoUI;
+  const ajuste = `<label class="field"><span>Horário em que dormiu</span><input type="datetime-local" id="s-aj"></label>
+    <div class="sono-btns"><button type="button" class="btn sleep" data-s="aj-ok">Salvar horário</button><button type="button" class="btn ghost" data-s="voltar">Voltar</button></div>`;
+  const cancela = `<div class="sono-sub">Descartar ${st.tipo==="soneca"?"esta soneca":"esta noite"}? Nada será salvo.</div>
+    <div class="sono-btns"><button type="button" class="btn danger" data-s="cancela-ok">Descartar</button><button type="button" class="btn ghost" data-s="voltar">Voltar</button></div>`;
+  let titulo, sub, botoes;
+  if (st.tipo==="soneca"){
+    titulo = "Soneca · dormindo"; sub = "dormiu às "+hm(st.inicio);
+    botoes = `<div class="sono-btns"><button type="button" class="btn sleep" data-s="fim" style="flex:1">Acordou</button></div>
+      <div class="sono-btns"><button type="button" class="mini" data-s="ajuste">Ajustar início</button><button type="button" class="mini del" data-s="cancela">Cancelar</button></div>`;
+  } else if (awake){
+    titulo = "Noite · acordado ("+(MOT[st.acordado.motivo]||"")+")"; sub = "acordou às "+hm(st.acordado.at)+" · dormiu às "+hm(st.inicio)+" · "+(n+1)+"º despertar";
+    botoes = `<div class="sono-btns"><button type="button" class="btn sleep" data-s="volta" style="flex:1">Voltou a dormir</button></div>
+      <div class="sono-btns"><button type="button" class="btn ghost" data-s="fim" style="flex:1">Não voltou a dormir · fim da noite</button></div>
+      <div class="sono-sub">Se ele mamou, registre também em + Peito ou + Mamadeira.</div>`;
+  } else {
+    titulo = n ? "Noite · voltou a dormir" : "Noite · dormindo"; sub = "dormiu às "+hm(st.inicio)+" · "+n+(n===1?" despertar":" despertares");
+    botoes = ui==="pick"
+      ? `<div class="label">Por que acordou?</div><div class="mot-btns"><button type="button" data-mot="fome">Fome</button><button type="button" data-mot="agitacao">Agitação</button><button type="button" data-mot="desconforto">Desconforto</button></div>
+         <div class="sono-btns"><button type="button" class="btn ghost" data-s="voltar">Voltar</button></div>`
+      : `<div class="sono-btns"><button type="button" class="btn warn" data-s="pick" style="flex:1">Acordou durante a noite</button></div>
+         <div class="sono-btns"><button type="button" class="btn sleep" data-s="fim" style="flex:1">Acordou de manhã · fim da noite</button></div>
+         <div class="sono-btns"><button type="button" class="mini" data-s="ajuste">Ajustar início</button><button type="button" class="mini del" data-s="cancela">Cancelar noite</button></div>`;
+  }
+  if (ui==="ajuste") botoes = ajuste; else if (ui==="cancela") botoes = cancela;
+  return `<div class="sono-top"><div><div class="label" style="color:${awake?"var(--warn)":"var(--sleep)"}">${titulo}</div><div class="clock" id="s-clock">00:00:00</div></div>
+    <span class="sono-sub">${sub}</span></div>${st.tipo==="noite"?`<div class="sono-sub" id="s-total"></div>`:""}${botoes}`;
+}
+function renderSono(){
+  const st = S.sono, box = $("sono-card");
+  $("sono-acts").hidden = !!st; box.hidden = !st;
+  if (!st){ sonoKey = ""; return; }
+  const key = JSON.stringify([st, S.sonoUI]);
+  if (key !== sonoKey){ sonoKey = key; box.innerHTML = sonoCardHTML(st); box.classList.toggle("awake", !!st.acordado); if (S.sonoUI==="ajuste") $("s-aj").value = toInput(st.inicio); }
+  const now = Date.now(), ds = st.despertares||[];
+  const desde = st.acordado ? st.acordado.at : (ds.length ? ds[ds.length-1].volta : st.inicio);
+  const sec = Math.floor(Math.max(0, now - desde)/1000), c = $("s-clock");
+  if (c) c.textContent = pad(Math.floor(sec/3600))+":"+pad(Math.floor(sec/60)%60)+":"+pad(sec%60);
+  const t = $("s-total");
+  if (t){ const f = sonoTodos(true).find(x=>x.id===st.id); t.textContent = f ? durMs(noiteCalc(f).sono)+" de sono até agora"+(st.acordado?"":" · contando desde "+hm(desde)) : ""; }
+}
+$("sono-soneca").addEventListener("click", ()=>sonoInicia("soneca"));
+$("sono-noite").addEventListener("click", ()=>sonoInicia("noite"));
+$("sono-card").addEventListener("click", e=>{
+  const b = e.target.closest("button"); if (!b || !S.sono) return;
+  if (b.dataset.mot){ sonoDespertou(b.dataset.mot); return; }
+  const a = b.dataset.s;
+  if (a==="fim") sonoFim();
+  else if (a==="volta") sonoVoltou();
+  else if (a==="pick" || a==="ajuste" || a==="cancela"){ S.sonoUI = a; renderSono(); }
+  else if (a==="voltar"){ S.sonoUI = null; renderSono(); }
+  else if (a==="cancela-ok") putSono(null);
+  else if (a==="aj-ok"){
+    const v = new Date($("s-aj").value).getTime(), st = S.sono, primeiro = (st.despertares||[]).concat(st.acordado?[st.acordado]:[]).map(d=>d.at).sort((x,y)=>x-y)[0];
+    if (!isFinite(v) || v > Date.now() || (primeiro && v >= primeiro) || Date.now() - v > 18*60*MIN){ toast("Horário inválido: use um horário antes do primeiro despertar e de agora.", null); return; }
+    putSono(Object.assign({}, st, {inicio:v}));
+  }
+});
+
+/* formulário de sono (registrar depois ou editar) */
+let sf = {tipo:"noite", editId:null};
+const hmIn = ms => { const d = new Date(ms); return pad(d.getHours())+":"+pad(d.getMinutes()); };
+function resolveHora(hhmm, base){ const m = /^(\d{1,2}):(\d{2})$/.exec(hhmm||""); if (!m) return NaN;
+  const d = new Date(base); d.setHours(+m[1], +m[2], 0, 0); let t = d.getTime(); if (t < base) t = addDays(t, 1); return t; }
+function despRowHTML(d){
+  return `<div class="desp-row"><input type="time" class="d-at" value="${d?hmIn(d.at):""}" aria-label="Acordou"><select class="d-mot" aria-label="Motivo">${Object.entries(MOT).map(([k,v])=>`<option value="${k}"${d&&d.motivo===k?" selected":""}>${v}</option>`).join("")}</select><input type="time" class="d-vol" value="${d&&d.volta?hmIn(d.volta):""}" aria-label="Voltou a dormir"><button type="button" class="mini del" data-x aria-label="Remover">×</button></div>`;
+}
+function sfTipo(t){ sf.tipo = t; setSeg($("sf-tipo"), t); $("sf-desp-box").hidden = t!=="noite"; }
+function openSonoForm(f, dia){
+  sf.editId = f ? f.id : null;
+  $("sf-title").textContent = f ? "Editar sono" : "Registrar sono";
+  const now = Date.now(), k = dia ?? sod(now), tipo = f ? f.tipo : "noite";
+  let ini, fim;
+  if (f){ ini = f.at; fim = f.fim; }
+  else if (tipo==="noite"){ ini = k + 20*60*MIN; fim = addDays(k,1) + 6*60*MIN; if (fim > now){ ini = Math.min(ini, now - 60*MIN); fim = now; } }
+  $("sf-ini").value = toInput(ini); $("sf-fim").value = toInput(fim);
+  $("sf-desp").innerHTML = (f && f.despertares || []).slice().sort((a,b)=>a.at-b.at).map(despRowHTML).join("");
+  $("sf-nota").value = f && f.nota ? f.nota : "";
+  $("sf-err").hidden = true; sfTipo(tipo); $("sf-bg").hidden = false;
+}
+$("sf-tipo").addEventListener("click", e=>{ const b = e.target.closest("button"); if (!b) return; sfTipo(b.dataset.v);
+  if (!sf.editId && b.dataset.v==="soneca"){ const k = S.sel ?? sod(Date.now()), now = Date.now(); let ini = k + 13*60*MIN, fim = k + 14*60*MIN; if (fim > now){ fim = now; ini = now - 60*MIN; }
+    $("sf-ini").value = toInput(ini); $("sf-fim").value = toInput(fim); } });
+$("sf-desp-add").addEventListener("click", ()=>{ $("sf-desp").insertAdjacentHTML("beforeend", despRowHTML(null)); });
+$("sf-desp").addEventListener("click", e=>{ const b = e.target.closest("[data-x]"); if (b) b.closest(".desp-row").remove(); });
+$("sf-close").addEventListener("click", ()=>{ $("sf-bg").hidden = true; });
+$("sf-bg").addEventListener("click", e=>{ if (e.target===$("sf-bg")) $("sf-bg").hidden = true; });
+$("add-sono-past").addEventListener("click", ()=>openSonoForm(null, S.sel ?? sod(Date.now())));
+$("sf").addEventListener("submit", e=>{
+  e.preventDefault();
+  const err = m => { $("sf-err").textContent = m; $("sf-err").hidden = false; };
+  const ini = new Date($("sf-ini").value).getTime(), fim = new Date($("sf-fim").value).getTime();
+  if (!isFinite(ini) || !isFinite(fim)) return err("Preencha a hora em que dormiu e a hora em que acordou.");
+  if (fim <= ini) return err("A hora em que acordou precisa ser depois da hora em que dormiu.");
+  if (fim > Date.now() + 5*MIN) return err("A hora em que acordou está no futuro.");
+  if (fim - ini > 18*60*MIN) return err("O sono passou de 18 horas. Confira as datas.");
+  const rec = {tipo: sf.tipo, at: ini, fim, nota: $("sf-nota").value.trim()};
+  if (sf.tipo==="noite"){
+    const ds = [];
+    for (const row of $("sf-desp").querySelectorAll(".desp-row")){
+      const a = row.querySelector(".d-at").value, v = row.querySelector(".d-vol").value;
+      if (!a && !v) continue;
+      const at = resolveHora(a, ini), volta = v ? resolveHora(v, at) : NaN;
+      if (!isFinite(at) || at >= fim) return err("Um despertar está fora do horário da noite. Confira a hora em que acordou.");
+      if (!isFinite(volta)) return err("Preencha a hora em que voltou a dormir em cada despertar.");
+      if (volta > fim) return err("Um despertar termina depois do fim da noite.");
+      ds.push({at, motivo: row.querySelector(".d-mot").value, volta});
+    }
+    ds.sort((a,b)=>a.at-b.at);
+    for (let i=1;i<ds.length;i++) if (ds[i].at < ds[i-1].volta) return err("Dois despertares estão se sobrepondo. Confira os horários.");
+    rec.despertares = ds;
+  }
+  const id = sf.editId || newId(), novo = !sf.editId;
+  putFeed(id, rec); $("sf-bg").hidden = true;
+  toast((novo ? (sf.tipo==="soneca" ? "Soneca registrada" : "Noite registrada") : "Sono atualizado")+" · "+durMs(sf.tipo==="noite" ? noiteCalc(rec).sono : fim-ini), novo ? id : null);
+});
 
 /* ---------- cronômetro de arroto (sincronizado, sem som) ---------- */
 S.burp = null; let wake = null;
@@ -785,6 +1078,7 @@ $("burp-restart").addEventListener("click", ()=>startBurp());
 $("burp-stop").addEventListener("click", ()=>putBurp(null));
 document.addEventListener("visibilitychange", ()=>{ if (!document.hidden) renderBurp(); });
 setInterval(renderBurp, 1000);
+setInterval(renderSono, 1000);
 
 /* ---------- lembrete no calendário ---------- */
 function icsData(ms){ const d = new Date(ms); return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+"T"+pad(d.getUTCHours())+pad(d.getUTCMinutes())+pad(d.getUTCSeconds())+"Z"; }
@@ -905,7 +1199,7 @@ $("cfg").addEventListener("submit", async e=>{ e.preventDefault();
   const cfg = Object.assign({}, S.cfg, { intervalMin: parseInt($("c-int").value,10)||180, tolMin: parseInt($("c-tol").value,10)||20, arrotoMin: parseInt($("c-burp").value,10)||20,
     nomeBebe: $("c-nome").value.trim() || S.cfg.nomeBebe || "", nascimento: isFinite(nv) ? nv : nasc() });
   try{ await putCfg(cfg); $("cfg-bg").hidden = true; }catch(x){ fail(); } });
-document.addEventListener("keydown", e=>{ if (e.key==="Escape"){ closeForm(); $("cfg-bg").hidden = true; } });
+document.addEventListener("keydown", e=>{ if (e.key==="Escape"){ closeForm(); $("sf-bg").hidden = true; $("cfg-bg").hidden = true; } });
 
 /* ---------- abas ---------- */
 function showTab(t){
@@ -940,6 +1234,27 @@ async function firstFeed(){
     const sn = await db.collection("feeds").orderBy("at","asc").limit(1).get();
     return sn.empty ? null : sn.docs[0].data().at;
   }catch(e){ return null; }
+}
+function repOpcoes(){ $("r-lista-row").hidden = !$("r-inc-ali").checked; $("r-lista-sono-row").hidden = !$("r-inc-sono").checked; }
+$("r-inc-ali").addEventListener("change", repOpcoes); $("r-inc-sono").addEventListener("change", repOpcoes);
+function sonoKV(R){
+  const r = R.sono;
+  return [
+    [r.noites ? durMs(r.sonoNoite/r.noites) : "–", "sono por noite (média)"], [r.noites ? fmt(r.desp/r.noites) : "–", "despertares por noite (média)"],
+    [r.maior ? durMs(r.maior) : "–", "maior trecho dormindo"], [r.dias ? fmt(r.sonecas/r.dias) : "–", "sonecas por dia (média)"],
+    [r.dias ? durMs(r.sonecaMs/r.dias) : "–", "tempo de soneca por dia"], [r.diasNoite ? durMs(r.totalNoiteDias/r.diasNoite) : "–", "sono total por dia (média, dias com noite registrada)"],
+    [r.mot.fome+" / "+r.mot.agitacao+" / "+r.mot.desconforto, "despertares: fome / agitação / desconforto"], [r.noites+" · "+r.sonecas, "noites · sonecas registradas"]
+  ];
+}
+function sonoDiaLinhas(R){
+  const out = [];
+  for (let k=R.s; k<R.e; k=addDays(k,1)){
+    const d = R.sono.porDia.get(k), n = d && d.noite, c = d && d.nc;
+    out.push({k, v: vida(k), dormiu: n ? hm(n.at) : "–", acordou: n ? hm(n.fim) : "–", sono: c ? durMs(c.sono) : "–",
+      desp: c ? c.desp+" ("+c.mot.fome+"/"+c.mot.agitacao+"/"+c.mot.desconforto+")" : "–", maior: c && c.maior ? durMs(c.maior) : "–",
+      sonecas: d ? d.sonecas : 0, sonecaT: d && d.sonecaMs ? durMs(d.sonecaMs) : "–", total: d ? durMs((c ? c.sono : 0) + d.sonecaMs) : "–"});
+  }
+  return out;
 }
 $("r-presets").addEventListener("click", e=>{ const b = e.target.closest("button"); if (b) preset(b.dataset.d); });
 for (const id of ["r-de","r-ate"]) $(id).addEventListener("input", ()=>{ for (const b of $("r-presets").children) b.setAttribute("aria-pressed","false"); });
@@ -976,12 +1291,17 @@ $("r-gerar").addEventListener("click", async ()=>{
   if (e0 < s) return err("A data final é antes da inicial.");
   if (e0 - s > 366*DAY) return err("Escolha um período de até 1 ano.");
   const e = addDays(e0, 1);
+  const incAli = $("r-inc-ali").checked, incSono = $("r-inc-sono").checked;
+  if (!incAli && !incSono) return err("Marque pelo menos Alimentação ou Sono.");
   const nome = $("r-nome").value.trim();
   if (nome !== (S.cfg.nomeBebe||"")) putCfg(Object.assign({}, S.cfg, {nomeBebe: nome}));
   $("r-gerar").disabled = true; $("r-gerar").textContent = "Gerando…";
   try {
-    const list = await fetchRange(s, e);
-    REP = buildReport(list, s, e);
+    const all = await fetchRange(addDays(s,-1), e);   // a véspera traz a noite que já vinha do dia anterior
+    REP = buildReport(all.filter(f => isFeed(f) && f.at >= s), s, e);
+    REP.sonoAll = all.filter(f => isSono(f) && f.fim != null);
+    REP.sono = sonoResumo(REP.sonoAll, s, e);
+    REP.incAli = incAli; REP.incSono = incSono; REP.listaSono = $("r-lista-sono").checked;
     REP.nome = nome; REP.obs = $("r-obs").value.trim(); REP.lista = $("r-lista").checked;
     renderReport(REP);
   } catch(x){ err("Não foi possível buscar os registros. Confira a conexão e tente de novo."); }
@@ -989,14 +1309,20 @@ $("r-gerar").addEventListener("click", async ()=>{
 });
 function renderReport(R){
   $("r-out").hidden = false;
-  $("r-titulo").textContent = R.nome ? "Resumo de "+R.nome : "Resumo";
   $("r-per").textContent = dBR(R.s)+" a "+dBR(R.e-1)+" · "+vidaCurto(vida(R.s))+" a "+vidaCurto(vida(R.e-1))+" de vida";
+  $("r-ali").hidden = !R.incAli; $("r-sono").hidden = !R.incSono;
+  $("r-titulo").textContent = (R.incAli && R.incSono ? "Alimentação e sono" : R.incSono ? "Sono" : "Alimentação") + (R.nome ? " de "+R.nome : "");
+  $("r-skv").innerHTML = sonoKV(R).map(([v,l])=>`<div><b style="color:var(--sleep)">${esc(String(v))}</b><span>${esc(l)}</span></div>`).join("");
+  $("r-stab").innerHTML = `<thead><tr><th>Vida</th><th>Data</th><th class="r">Dormiu</th><th class="r">Acordou</th><th class="r">Sono noite</th><th class="r">Despert. (F/A/D)</th><th class="r">Maior trecho</th><th class="r">Sonecas</th><th class="r">Tempo soneca</th><th class="r">Total</th></tr></thead><tbody>`+
+    sonoDiaLinhas(R).map(d=>`<tr><td><b>${vidaCurto(d.v)}</b></td><td>${WD[new Date(d.k).getDay()]} ${dBRs(d.k)}</td><td class="r">${d.dormiu}</td><td class="r">${d.acordou}</td><td class="r">${d.sono}</td><td class="r">${d.desp}</td><td class="r">${d.maior}</td><td class="r">${d.sonecas}</td><td class="r">${d.sonecaT}</td><td class="r"><b>${d.total}</b></td></tr>`).join("")+`</tbody>`;
   $("r-sp").textContent = "Peito "+R.pctP+"%"; $("r-sm").textContent = "Mamadeira "+R.pctM+"%";
   $("r-bar").innerHTML = splitHTML(R.t);
   $("r-kv").innerHTML = repKV(R).map(([v,l])=>`<div><b>${esc(String(v))}</b><span>${esc(l)}</span></div>`).join("");
   $("r-tab").innerHTML = `<thead><tr><th>Vida</th><th>Data</th><th class="r">Peito</th><th class="r">S/M/P</th><th class="r">Mamad.</th><th class="r">Fórmula</th><th class="r">ml/mamad.</th><th class="r">Interv. mamad.</th></tr></thead><tbody>`+
     R.days.map(d=>`<tr><td><b>${vidaCurto(d.v)}</b></td><td>${WD[new Date(d.k).getDay()]} ${dBRs(d.k)}</td><td class="r">${d.p}</td><td class="r">${d.qs}/${d.qm}/${d.qp}</td><td class="r">${d.m}</td><td class="r">${d.ml} ml</td><td class="r">${d.m?Math.round(d.ml/d.m)+" ml":"–"}</td><td class="r">${d.gapAvg!=null?dur(d.gapAvg):"–"}</td></tr>`).join("")+`</tbody>`;
-  if (!R.list.length) $("r-hint").textContent = "Nenhuma mamada registrada neste período.";
+  $("r-hint").textContent = (R.incAli && !R.list.length) || (R.incSono && !(R.sono.noites + R.sono.sonecas))
+    ? "Atenção: "+[R.incAli && !R.list.length ? "nenhuma mamada" : "", R.incSono && !(R.sono.noites + R.sono.sonecas) ? "nenhum sono" : ""].filter(Boolean).join(" e ")+" registrado neste período."
+    : "No iPhone, \"Enviar PDF\" abre as opções para mandar por WhatsApp, e-mail ou salvar em Arquivos.";
   try{ const f = new File([new Blob(["x"])], "t.pdf", {type:"application/pdf"}); $("r-share").hidden = !(navigator.canShare && navigator.canShare({files:[f]})); }catch(e){ $("r-share").hidden = true; }
   $("r-out").scrollIntoView({behavior:"smooth", block:"start"});
 }
@@ -1012,16 +1338,21 @@ async function makePDF(R){
   const ROSE2 = [217,139,168], ROSE3 = [239,201,215];
   let y = M;
   doc.setFont("helvetica","bold"); doc.setFontSize(18); doc.setTextColor(...INK);
-  doc.text("Relatório de alimentação"+(R.nome ? " - "+R.nome : ""), M, y+6); y += 26;
+  doc.text((R.incAli && R.incSono ? "Relatório de alimentação e sono" : R.incSono ? "Relatório de sono" : "Relatório de alimentação")+(R.nome ? " - "+R.nome : ""), M, y+6); y += 26;
   doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...MUT);
   doc.text("Nascimento: "+dBR(nasc())+" às "+hm(nasc())+"   ·   Período: "+dBR(R.s)+" a "+dBR(R.e-1)+" ("+vidaCurto(vida(R.s))+" a "+vidaCurto(vida(R.e-1))+" de vida)", M, y); y += 12;
   doc.text("Gerado em "+dBR(Date.now())+" às "+hm(Date.now())+"   ·   Dias de vida contados por data: dia do nascimento = 0", M, y); y += 12;
-  doc.text("Intervalo combinado entre mamadeiras (o peito não entra nessa conta): "+dur(S.cfg.intervalMin)+" (tolerância de "+(S.cfg.tolMin||20)+" min)", M, y); y += 20;
+  if (R.incAli){ doc.text("Intervalo combinado entre mamadeiras (o peito não entra nessa conta): "+dur(S.cfg.intervalMin)+" (tolerância de "+(S.cfg.tolMin||20)+" min)", M, y); y += 12; }
+  if (R.incSono){ doc.text("Sono: a noite conta na data em que começou. Despertares: F = fome, A = agitação, D = desconforto.", M, y); y += 12; }
+  y += 8;
+  const bw = W - 2*M;
+  const SLEEP = [85,82,201], SLEEP2 = [156,154,232], ORANGE = [184,93,18];
 
+  if (R.incAli){
   // barra peito × mamadeira
   doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...INK);
   doc.text("Peito x mamadeira", M, y); y += 8;
-  const bw = W - 2*M, tot = R.t.p + R.t.m; let x = M;
+  const tot = R.t.p + R.t.m; let x = M;
   doc.setFillColor(...LINE); doc.roundedRect(M, y, bw, 12, 6, 6, "F");
   if (tot){ [[R.t.qs, ROSE],[R.t.qm, ROSE2],[R.t.qp, ROSE3],[R.t.m, BLUE]].forEach(([v,c])=>{ const w = v/tot*bw; if (w>0){ doc.setFillColor(...c); doc.rect(x, y, w, 12, "F"); x += w; } }); }
   y += 24; doc.setFont("helvetica","normal"); doc.setFontSize(9.5);
@@ -1063,6 +1394,58 @@ async function makePDF(R){
     headStyles:{fillColor:[245,247,251], textColor:MUT, fontStyle:"bold"}, footStyles:{fillColor:[245,247,251], textColor:INK, fontStyle:"bold"},
     columnStyles:{0:{fontStyle:"bold"},2:{halign:"right"},3:{halign:"center"},4:{halign:"right"},5:{halign:"right"},6:{halign:"right"},7:{halign:"right"}} });
   y = doc.lastAutoTable.finalY + 18;
+  } // fim alimentação
+
+  if (R.incSono){
+    if (R.incAli){ doc.addPage(); y = M; }
+    doc.setFont("helvetica","bold"); doc.setFontSize(14); doc.setTextColor(...SLEEP); doc.text("Sono", M, y+4); y += 16;
+    doc.autoTable({ startY: y, margin:{left:M, right:M}, theme:"plain",
+      body: sonoKV(R).reduce((rows, kv, i)=>{ if (i%2===0) rows.push([kv[1], String(kv[0])]); else rows[rows.length-1].push(kv[1], String(kv[0])); return rows; }, []),
+      styles:{font:"helvetica", fontSize:9.5, textColor:INK, cellPadding:{top:4,bottom:4,left:4,right:4}, lineColor:LINE, lineWidth:{bottom:.5}},
+      columnStyles:{0:{textColor:MUT}, 1:{fontStyle:"bold", halign:"right"}, 2:{textColor:MUT}, 3:{fontStyle:"bold", halign:"right"}} });
+    y = doc.lastAutoTable.finalY + 18;
+
+    // diário do sono: uma linha por dia, de 0h a 24h
+    const labW = 70, gw = bw - labW, rowH = 13, X = h => M + labW + gw*h/24;
+    const cab = ()=>{ doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...INK); doc.text("Diário do sono (cada linha é um dia, de 0h a 24h)", M, y); y += 12;
+      doc.setFont("helvetica","normal"); doc.setFontSize(7); doc.setTextColor(...MUT);
+      for (let h=0; h<=24; h+=3) doc.text(pad(h%24===0&&h?24:h)+"h", X(h), y, {align:"center"}); y += 4; };
+    if (y > 700){ doc.addPage(); y = M; }
+    cab();
+    const segs = R.sonoAll.map(f=>({f, sg: sonoSegs(f)}));
+    for (let k=R.s; k<R.e; k=addDays(k,1)){
+      if (y + rowH > 790){ doc.addPage(); y = M; cab(); }
+      const kv = vida(k), k2 = addDays(k,1);
+      doc.setFontSize(7.5); doc.setTextColor(...INK); doc.text((kv>=0? kv+"d · ":"")+WD[new Date(k).getDay()]+" "+dBRs(k), M, y+rowH-4);
+      doc.setFillColor(245,247,251); doc.rect(X(0), y+1, gw, rowH-2, "F");
+      for (const {f, sg} of segs){
+        doc.setFillColor(...(f.tipo==="soneca" ? SLEEP2 : SLEEP));
+        for (const [a0,b0] of sg.dorme){ const a = Math.max(a0,k), b = Math.min(b0,k2); if (b>a) doc.rect(X((a-k)/36e5), y+1, Math.max(.8, X((b-k)/36e5)-X((a-k)/36e5)), rowH-2, "F"); }
+        doc.setFillColor(...ORANGE);
+        for (const [a0,b0] of sg.acordado){ const a = Math.max(a0,k), b = Math.min(b0,k2); if (b>a) doc.rect(X((a-k)/36e5), y+4, Math.max(1.2, X((b-k)/36e5)-X((a-k)/36e5)), rowH-8, "F"); }
+      }
+      for (const f of R.list){ if (f.at < k || f.at >= k2) continue;
+        doc.setFillColor(...(f.tipo==="mamadeira" ? BLUE : ROSE)); doc.circle(X((f.at-k)/36e5), y+rowH-1.5, 1.6, "F"); }
+      doc.setDrawColor(...LINE); doc.setLineWidth(.3);
+      for (let h=0; h<=24; h+=3) doc.line(X(h), y+1, X(h), y+rowH-1);
+      y += rowH;
+    }
+    y += 10; doc.setFontSize(7.5); let lx = M;
+    for (const [c, t] of [[SLEEP,"sono da noite"],[SLEEP2,"soneca"],[ORANGE,"acordado à noite"],[BLUE,"mamadeira"],[ROSE,"peito"]]){
+      doc.setFillColor(...c); if (c===BLUE || c===ROSE) doc.circle(lx+3, y-2.5, 2.2, "F"); else doc.rect(lx, y-6, 9, 7, "F");
+      doc.setTextColor(...MUT); doc.text(t, lx+13, y); lx += 13 + doc.getTextWidth(t) + 16; }
+    y += 18;
+
+    // dia a dia do sono
+    if (y > 700){ doc.addPage(); y = M; }
+    doc.autoTable({ startY: y, margin:{left:M, right:M},
+      head:[["Dias de vida","Data","Dormiu","Acordou","Sono da noite","Despertares (F/A/D)","Maior trecho","Sonecas","Tempo de soneca","Sono total"]],
+      body: sonoDiaLinhas(R).map(d=>[vidaCurto(d.v), WD[new Date(d.k).getDay()]+" "+dBRs(d.k), d.dormiu, d.acordou, d.sono, d.desp, d.maior, d.sonecas, d.sonecaT, d.total]),
+      styles:{font:"helvetica", fontSize:8, textColor:INK, lineColor:LINE, lineWidth:.5},
+      headStyles:{fillColor:[232,231,250], textColor:SLEEP, fontStyle:"bold"},
+      columnStyles:{0:{fontStyle:"bold"},2:{halign:"right"},3:{halign:"right"},4:{halign:"right"},5:{halign:"center"},6:{halign:"right"},7:{halign:"right"},8:{halign:"right"},9:{halign:"right",fontStyle:"bold"}} });
+    y = doc.lastAutoTable.finalY + 18;
+  }
 
   // observações
   if (R.obs){
@@ -1073,7 +1456,7 @@ async function makePDF(R){
   }
 
   // lista completa
-  if (R.lista && R.list.length){
+  if (R.incAli && R.lista && R.list.length){
     doc.addPage();
     doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor(...INK); doc.text("Todas as mamadas do período", M, M+6);
     doc.autoTable({ startY: M+18, margin:{left:M, right:M},
@@ -1087,11 +1470,34 @@ async function makePDF(R){
       didParseCell: h=>{ if (h.section==="body" && h.column.index===3){ h.cell.styles.textColor = h.cell.raw==="Peito" ? ROSE : BLUE; h.cell.styles.fontStyle = "bold"; } } });
   }
 
+  // lista do sono
+  if (R.incSono && R.listaSono && R.sonoAll.length){
+    const lst = R.sonoAll.filter(f => { const k = sonoDia(f); return k >= R.s && k < R.e; }).sort((a,b)=>a.at-b.at), rows = [];
+    for (const f of lst){
+      if (f.tipo==="soneca"){ rows.push(["Soneca", vidaCurto(vida(f.at)), dBRs(f.at), hm(f.at), hm(f.fim), durMs(f.fim-f.at), "", f.nota||""]); continue; }
+      const c = noiteCalc(f);
+      rows.push(["Noite", vidaCurto(vida(sonoDia(f))), dBRs(f.at), hm(f.at), hm(f.fim), durMs(c.sono)+" de sono", c.desp+(c.desp===1?" despertar":" despertares"), f.nota||""]);
+      for (const d of (f.despertares||[]).slice().sort((a,b)=>a.at-b.at))
+        rows.push(["   acordou", "", dBRs(d.at), hm(d.at), d.volta?hm(d.volta):"-", d.volta?durMs(d.volta-d.at)+" acordado":"-", MOT[d.motivo]||"", ""]);
+    }
+    if (rows.length){
+      doc.addPage();
+      doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor(...SLEEP); doc.text("Todas as noites e sonecas do período", M, M+6);
+      doc.autoTable({ startY: M+18, margin:{left:M, right:M},
+        head:[["Tipo","Vida","Data","Início","Fim","Duração","Despertares / motivo","Observação"]], body: rows,
+        styles:{font:"helvetica", fontSize:8.5, textColor:INK, lineColor:LINE, lineWidth:.5, overflow:"linebreak"},
+        headStyles:{fillColor:[232,231,250], textColor:SLEEP, fontStyle:"bold"}, columnStyles:{7:{cellWidth:100}},
+        didParseCell: h=>{ if (h.section!=="body") return; const t = h.row.raw[0];
+          if (t==="Noite" || t==="Soneca"){ if (h.column.index===0){ h.cell.styles.textColor = SLEEP; h.cell.styles.fontStyle = "bold"; } }
+          else { h.cell.styles.textColor = h.column.index===6 ? ORANGE : MUT; h.cell.styles.fontSize = 8; } } });
+    }
+  }
+
   // rodapé
   const pages = doc.getNumberOfPages();
   for (let i=1;i<=pages;i++){ doc.setPage(i); doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(...MUT);
-    doc.text("Diário de Mamadas · registrado pelos pais", M, 820); doc.text("Página "+i+" de "+pages, W-M, 820, {align:"right"}); }
-  const nomeArq = "relatorio-mamadas"+(R.nome?"-"+R.nome.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""):"")+"-"+dIn(R.s)+"-a-"+dIn(R.e-1)+".pdf";
+    doc.text("Diário do Bebê · registrado pelos pais", M, 820); doc.text("Página "+i+" de "+pages, W-M, 820, {align:"right"}); }
+  const nomeArq = "relatorio-"+(R.incAli && R.incSono ? "mamadas-e-sono" : R.incSono ? "sono" : "mamadas")+(R.nome?"-"+R.nome.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""):"")+"-"+dIn(R.s)+"-a-"+dIn(R.e-1)+".pdf";
   return { doc, nomeArq };
 }
 async function pdfAction(share){
@@ -1130,6 +1536,7 @@ if (!window.FIREBASE_CONFIG || !window.FIREBASE_CONFIG.apiKey || String(window.F
   }, noAccess);
   db.doc("config/geral").onSnapshot(s=>{ if (s.exists){ S.cfg = Object.assign({intervalMin:180, tolMin:20, arrotoMin:20, nomeBebe:"Ethan", nascimento:new Date(2026, 8, 23, 22, 39).getTime()}, s.data()); renderHero(); renderBurp(); renderPeriod(); renderDay(); } }, ()=>{});
   db.doc("config/arroto").onSnapshot(s=>{ S.burp = s.exists ? s.data() : null; renderBurp(); }, ()=>{});
+  db.doc("config/sono").onSnapshot(s=>{ S.sono = s.exists && s.data().ativo ? s.data() : null; S.sonoUI = null; renderSono(); if (S.view==="dia") renderPeriod(); }, ()=>{});
   loadPeriod();
 }
 
