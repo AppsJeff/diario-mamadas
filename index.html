@@ -382,7 +382,7 @@ textarea{resize:vertical;min-height:56px}
     <section class="card">
       <h2>Relatório para a médica</h2>
       <div class="quick" id="r-presets">
-        <button type="button" data-d="7">Últimos 7 dias</button><button type="button" data-d="15">Últimos 15 dias</button><button type="button" data-d="30">Últimos 30 dias</button><button type="button" data-d="mes">Este mês</button><button type="button" data-d="tudo">Desde o início</button>
+        <button type="button" data-d="7">Últimos 7 dias</button><button type="button" data-d="10">Últimos 10 dias</button><button type="button" data-d="15">Últimos 15 dias</button><button type="button" data-d="30">Últimos 30 dias</button><button type="button" data-d="mes">Este mês</button><button type="button" data-d="tudo">Desde o início</button>
       </div>
       <div class="rep-dates">
         <label class="field"><span>De</span><input type="date" id="r-de"></label>
@@ -391,6 +391,7 @@ textarea{resize:vertical;min-height:56px}
       <label class="field"><span>Nome do bebê <span class="muted" style="font-weight:600">(aparece no PDF)</span></span><input type="text" id="r-nome" maxlength="60" placeholder="Ex.: Ethan"></label>
       <label class="field"><span>Observações para a médica <span class="muted" style="font-weight:600">(opcional)</span></span><textarea id="r-obs" maxlength="800" placeholder="Ex.: tem regurgitado depois da mamadeira da noite"></textarea></label>
       <div class="field"><span>O que entra no relatório</span>
+        <label class="chk"><input type="checkbox" id="r-inc-rot" checked> Rotina do dia (modelo da pediatra)</label>
         <label class="chk"><input type="checkbox" id="r-inc-ali" checked> Alimentação (peito e mamadeira)</label>
         <label class="chk" style="padding-left:26px;font-weight:600" id="r-lista-row"><input type="checkbox" id="r-lista" checked> com a lista de todas as mamadas</label>
         <label class="chk"><input type="checkbox" id="r-inc-sono" checked> Sono (noites, despertares e sonecas)</label>
@@ -402,6 +403,10 @@ textarea{resize:vertical;min-height:56px}
 
     <section class="card" id="r-out" hidden>
       <div class="day-head"><h2 id="r-titulo">Resumo</h2><span class="muted num" style="font-size:.82rem" id="r-per"></span></div>
+      <div id="r-rot" style="display:flex;flex-direction:column;gap:12px">
+        <h3>Rotina do dia</h3>
+        <div class="rep-table-wrap"><table class="rep-table" id="r-rtab"></table></div>
+      </div>
       <div id="r-ali" style="display:flex;flex-direction:column;gap:12px">
         <h3>Alimentação</h3>
         <div class="split">
@@ -1199,6 +1204,28 @@ async function firstFeed(){
 }
 function repOpcoes(){ $("r-lista-row").hidden = !$("r-inc-ali").checked; $("r-lista-sono-row").hidden = !$("r-inc-sono").checked; }
 $("r-inc-ali").addEventListener("change", repOpcoes); $("r-inc-sono").addEventListener("change", repOpcoes);
+// Rotina do dia no modelo da pediatra: acordou pela manhã, sonecas, início do sono noturno e horários das mamadas
+function rotinaDias(R){
+  const out = [], noites = R.sonoAll.filter(f=>f.tipo==="noite"), sonecas = R.sonoAll.filter(f=>f.tipo==="soneca");
+  const hmD = (ms, k) => hm(ms) + (sod(ms) !== k ? " ("+dBRs(ms)+")" : "");
+  for (let k=R.s; k<R.e; k=addDays(k,1)){
+    const ant = noites.filter(f=>sonoDia(f)===addDays(k,-1)).sort((a,b)=>b.fim-a.fim)[0];
+    const hoje = noites.filter(f=>sonoDia(f)===k).sort((a,b)=>a.at-b.at)[0];
+    const sn = sonecas.filter(f=>sod(f.at)===k).sort((a,b)=>a.at-b.at);
+    const mm = R.list.filter(f=>sod(f.at)===k).sort((a,b)=>a.at-b.at);
+    out.push({ k, v: vida(k),
+      acordou: ant ? hmD(ant.fim, k) : "—",
+      sonecas: sn.map(f=>({de: hm(f.at), ate: hmD(f.fim, k), dur: durMs(f.fim-f.at)})),
+      noite: hoje ? hmD(hoje.at, k) : "—",
+      mamadas: mm.map(f=>({h: hm(f.at), t: f.tipo==="mamadeira" ? "mamadeira "+(f.ml||0)+" ml" : "peito"+(QN[f.qual]?" ("+QN[f.qual].toLowerCase()+")":"")})) });
+  }
+  return out;
+}
+function repTitulo(R){
+  const partes = [R.incRot && "rotina", R.incAli && "alimentação", R.incSono && "sono"].filter(Boolean);
+  const t = partes.length > 1 ? partes.slice(0,-1).join(", ")+" e "+partes[partes.length-1] : partes[0];
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
 function sonoKV(R){
   const r = R.sono;
   return [
@@ -1253,8 +1280,8 @@ $("r-gerar").addEventListener("click", async ()=>{
   if (e0 < s) return err("A data final é antes da inicial.");
   if (e0 - s > 366*DAY) return err("Escolha um período de até 1 ano.");
   const e = addDays(e0, 1);
-  const incAli = $("r-inc-ali").checked, incSono = $("r-inc-sono").checked;
-  if (!incAli && !incSono) return err("Marque pelo menos Alimentação ou Sono.");
+  const incRot = $("r-inc-rot").checked, incAli = $("r-inc-ali").checked, incSono = $("r-inc-sono").checked;
+  if (!incRot && !incAli && !incSono) return err("Marque pelo menos uma opção: Rotina, Alimentação ou Sono.");
   const nome = $("r-nome").value.trim();
   if (nome !== (S.cfg.nomeBebe||"")) putCfg(Object.assign({}, S.cfg, {nomeBebe: nome}));
   $("r-gerar").disabled = true; $("r-gerar").textContent = "Gerando…";
@@ -1263,7 +1290,7 @@ $("r-gerar").addEventListener("click", async ()=>{
     REP = buildReport(all.filter(f => isFeed(f) && f.at >= s), s, e);
     REP.sonoAll = all.filter(f => isSono(f) && f.fim != null);
     REP.sono = sonoResumo(REP.sonoAll, s, e);
-    REP.incAli = incAli; REP.incSono = incSono; REP.listaSono = $("r-lista-sono").checked;
+    REP.incRot = incRot; REP.incAli = incAli; REP.incSono = incSono; REP.listaSono = $("r-lista-sono").checked;
     REP.nome = nome; REP.obs = $("r-obs").value.trim(); REP.lista = $("r-lista").checked;
     renderReport(REP);
   } catch(x){ err("Não foi possível buscar os registros. Confira a conexão e tente de novo."); }
@@ -1272,8 +1299,12 @@ $("r-gerar").addEventListener("click", async ()=>{
 function renderReport(R){
   $("r-out").hidden = false;
   $("r-per").textContent = dBR(R.s)+" a "+dBR(R.e-1)+" · "+vidaCurto(vida(R.s))+" a "+vidaCurto(vida(R.e-1))+" de vida";
-  $("r-ali").hidden = !R.incAli; $("r-sono").hidden = !R.incSono;
-  $("r-titulo").textContent = (R.incAli && R.incSono ? "Alimentação e sono" : R.incSono ? "Sono" : "Alimentação") + (R.nome ? " de "+R.nome : "");
+  $("r-rot").hidden = !R.incRot; $("r-ali").hidden = !R.incAli; $("r-sono").hidden = !R.incSono;
+  $("r-titulo").textContent = repTitulo(R) + (R.nome ? " de "+R.nome : "");
+  $("r-rtab").innerHTML = `<thead><tr><th>Data</th><th>Acordou pela manhã</th><th>Sonecas</th><th>Sono noturno iniciou</th><th>Mamadas</th></tr></thead><tbody>`+
+    rotinaDias(R).map(d=>`<tr><td><b>${WD[new Date(d.k).getDay()]} ${dBRs(d.k)}</b><br><span class="muted">${vidaCurto(d.v)}</span></td><td>${d.acordou}</td>
+      <td style="white-space:normal;min-width:125px">${d.sonecas.length ? d.sonecas.map((x,i)=>`${i+1}: ${x.de}–${x.ate}`).join("<br>") : "—"}</td><td>${d.noite}</td>
+      <td style="white-space:normal;min-width:180px">${d.mamadas.length ? d.mamadas.map(x=>`${x.h} ${esc(x.t)}`).join("<br>") : "—"}</td></tr>`).join("")+`</tbody>`;
   $("r-skv").innerHTML = sonoKV(R).map(([v,l])=>`<div><b style="color:var(--sleep)">${esc(String(v))}</b><span>${esc(l)}</span></div>`).join("");
   $("r-stab").innerHTML = `<thead><tr><th>Vida</th><th>Data</th><th class="r">Dormiu</th><th class="r">Acordou</th><th class="r">Sono noite</th><th class="r">Despert. (F/A/D)</th><th class="r">Maior trecho</th><th class="r">Sonecas</th><th class="r">Tempo soneca</th><th class="r">Total</th></tr></thead><tbody>`+
     sonoDiaLinhas(R).map(d=>`<tr><td><b>${vidaCurto(d.v)}</b></td><td>${WD[new Date(d.k).getDay()]} ${dBRs(d.k)}</td><td class="r">${d.dormiu}</td><td class="r">${d.acordou}</td><td class="r">${d.sono}</td><td class="r">${d.desp}</td><td class="r">${d.maior}</td><td class="r">${d.sonecas}</td><td class="r">${d.sonecaT}</td><td class="r"><b>${d.total}</b></td></tr>`).join("")+`</tbody>`;
@@ -1300,15 +1331,38 @@ async function makePDF(R){
   const ROSE2 = [217,139,168], ROSE3 = [239,201,215];
   let y = M;
   doc.setFont("helvetica","bold"); doc.setFontSize(18); doc.setTextColor(...INK);
-  doc.text((R.incAli && R.incSono ? "Relatório de alimentação e sono" : R.incSono ? "Relatório de sono" : "Relatório de alimentação")+(R.nome ? " - "+R.nome : ""), M, y+6); y += 26;
+  doc.text("Relatório de "+repTitulo(R).toLowerCase()+(R.nome ? " - "+R.nome : ""), M, y+6); y += 26;
   doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...MUT);
   doc.text("Nascimento: "+dBR(nasc())+" às "+hm(nasc())+"   ·   Período: "+dBR(R.s)+" a "+dBR(R.e-1)+" ("+vidaCurto(vida(R.s))+" a "+vidaCurto(vida(R.e-1))+" de vida)", M, y); y += 12;
   doc.text("Gerado em "+dBR(Date.now())+" às "+hm(Date.now())+"   ·   Dias de vida contados por data: dia do nascimento = 0", M, y); y += 12;
   if (R.incAli){ doc.text("Intervalo combinado entre mamadeiras (o peito não entra nessa conta): "+dur(S.cfg.intervalMin)+" (tolerância de "+(S.cfg.tolMin||20)+" min)", M, y); y += 12; }
-  if (R.incSono){ doc.text("Sono: a noite conta na data em que começou. Despertares: F = fome, A = agitação, D = desconforto.", M, y); y += 12; }
+  if (R.incSono || R.incRot){ doc.text("Sono: a noite conta na data em que começou. Despertares: F = fome, A = agitação, D = desconforto.", M, y); y += 12; }
   y += 8;
   const bw = W - 2*M;
   const SLEEP = [85,82,201], SLEEP2 = [156,154,232], ORANGE = [184,93,18];
+
+  // rotina do dia (modelo da pediatra): um bloco por data
+  if (R.incRot){
+    doc.setFont("helvetica","bold"); doc.setFontSize(14); doc.setTextColor(...INK); doc.text("Rotina do dia", M, y+4); y += 14;
+    for (const d of rotinaDias(R)){
+      const linhas = [["Acordou pela manhã", d.acordou]];
+      const ns = Math.max(4, d.sonecas.length);
+      for (let i=0;i<ns;i++){ const x = d.sonecas[i]; linhas.push(["Soneca "+(i+1), x ? "das "+x.de+" até "+x.ate+"   ("+x.dur+")" : "—"]); }
+      linhas.push(["Sono noturno iniciou", d.noite]);
+      linhas.push(["Horários das mamadas", d.mamadas.length ? d.mamadas.map(x=>x.h+" "+x.t).join("   ·   ") : "—"]);
+      const alt = 18 + linhas.length * 17 + (d.mamadas.length > 6 ? 14 : 0);
+      if (y + alt > 800){ doc.addPage(); y = M; }
+      doc.autoTable({ startY: y, margin:{left:M, right:M}, theme:"grid",
+        head:[[{content:"DATA: "+WD[new Date(d.k).getDay()]+", "+dBR(d.k)+(d.v>=0 ? "   ·   "+vidaTxt(d.v) : ""), colSpan:2}]],
+        body: linhas,
+        styles:{font:"helvetica", fontSize:9, textColor:INK, lineColor:LINE, lineWidth:.5, cellPadding:{top:3.5,bottom:3.5,left:6,right:6}},
+        headStyles:{fillColor:[245,247,251], textColor:INK, fontStyle:"bold", fontSize:9.5},
+        columnStyles:{0:{cellWidth:130, textColor:MUT, fontStyle:"bold"}},
+        didParseCell: h=>{ if (h.section==="body" && h.column.index===1 && h.cell.raw==="—") h.cell.styles.textColor = MUT; } });
+      y = doc.lastAutoTable.finalY + 10;
+    }
+    if (R.incAli || R.incSono){ doc.addPage(); y = M; }
+  }
 
   if (R.incAli){
   // barra peito × mamadeira
@@ -1459,7 +1513,7 @@ async function makePDF(R){
   const pages = doc.getNumberOfPages();
   for (let i=1;i<=pages;i++){ doc.setPage(i); doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(...MUT);
     doc.text("Diário do Bebê · registrado pelos pais", M, 820); doc.text("Página "+i+" de "+pages, W-M, 820, {align:"right"}); }
-  const nomeArq = "relatorio-"+(R.incAli && R.incSono ? "mamadas-e-sono" : R.incSono ? "sono" : "mamadas")+(R.nome?"-"+R.nome.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""):"")+"-"+dIn(R.s)+"-a-"+dIn(R.e-1)+".pdf";
+  const nomeArq = "relatorio-"+[R.incRot && "rotina", R.incAli && "mamadas", R.incSono && "sono"].filter(Boolean).join("-")+(R.nome?"-"+R.nome.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""):"")+"-"+dIn(R.s)+"-a-"+dIn(R.e-1)+".pdf";
   return { doc, nomeArq };
 }
 async function pdfAction(share){
