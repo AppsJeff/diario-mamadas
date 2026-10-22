@@ -463,10 +463,11 @@ textarea{resize:vertical;min-height:56px}
     <div class="seg" id="sf-tipo"><button type="button" data-v="soneca">Soneca</button><button type="button" data-v="noite">Noite</button></div>
     <div style="display:grid;grid-template-columns:1fr;gap:10px">
       <label class="field"><span>Dormiu</span><input type="datetime-local" id="sf-ini"></label>
-      <label class="field"><span>Acordou</span><input type="datetime-local" id="sf-fim"></label>
+      <label class="field" id="sf-fim-row"><span>Acordou</span><input type="datetime-local" id="sf-fim"></label>
     </div>
     <div class="field" id="sf-desp-box">
       <span>Despertares durante a noite</span>
+      <p class="hint" id="sf-desp-hint" hidden>Use para incluir um despertar que esqueceu de marcar ou corrigir horários. Se ele ainda estiver acordado, deixe "Voltou a dormir" vazio no último.</p>
       <div class="desp-head"><span>Acordou</span><span>Motivo</span><span>Voltou a dormir</span><span></span></div>
       <div class="desp-list" id="sf-desp"></div>
       <button type="button" class="mini" id="sf-desp-add" style="align-self:flex-start">+ Despertar</button>
@@ -908,7 +909,7 @@ function sonoVoltou(){ const st = S.sono;
 function sonoFim(){
   const st = S.sono; if (!st) return; const now = Date.now();
   const rec = st.tipo==="soneca" ? {tipo:"soneca", at:st.inicio, fim:now, nota:""}
-    : {tipo:"noite", at:st.inicio, fim: st.acordado ? st.acordado.at : now, despertares: st.despertares||[], nota:""};
+    : {tipo:"noite", at:st.inicio, fim: st.acordado ? st.acordado.at : now, despertares: st.despertares||[], nota: st.nota||""};
   putFeed(st.id, rec); putSono(null);
   toast((st.tipo==="soneca" ? "Soneca de "+durMs(rec.fim-rec.at) : "Noite: "+durMs(noiteCalc(rec).sono)+" de sono")+" · acordou às "+hm(rec.fim), st.id);
 }
@@ -927,7 +928,8 @@ function sonoCardHTML(st){
     titulo = "Noite · acordado ("+(MOT[st.acordado.motivo]||"")+")"; sub = "acordou às "+hm(st.acordado.at)+" · dormiu às "+hm(st.inicio)+" · "+(n+1)+"º despertar";
     botoes = `<div class="sono-btns"><button type="button" class="btn sleep" data-s="volta" style="flex:1">Voltou a dormir</button></div>
       <div class="sono-btns"><button type="button" class="btn ghost" data-s="fim" style="flex:1">Não voltou a dormir · fim da noite</button></div>
-      <div class="sono-sub">Se ele mamou, registre também em + Peito ou + Mamadeira.</div>`;
+      <div class="sono-sub">Se ele mamou, registre também em + Peito ou + Mamadeira.</div>
+      <div class="sono-btns"><button type="button" class="mini" data-s="corrigir">Corrigir horários e despertares</button></div>`;
   } else {
     titulo = n ? "Noite · voltou a dormir" : "Noite · dormindo"; sub = "dormiu às "+hm(st.inicio)+" · "+n+(n===1?" despertar":" despertares");
     botoes = ui==="pick"
@@ -935,7 +937,7 @@ function sonoCardHTML(st){
          <div class="sono-btns"><button type="button" class="btn ghost" data-s="voltar">Voltar</button></div>`
       : `<div class="sono-btns"><button type="button" class="btn warn" data-s="pick" style="flex:1">Acordou durante a noite</button></div>
          <div class="sono-btns"><button type="button" class="btn sleep" data-s="fim" style="flex:1">Acordou de manhã · fim da noite</button></div>
-         <div class="sono-btns"><button type="button" class="mini" data-s="ajuste">Ajustar início</button><button type="button" class="mini del" data-s="cancela">Cancelar noite</button></div>`;
+         <div class="sono-btns"><button type="button" class="mini" data-s="corrigir">Corrigir horários e despertares</button><button type="button" class="mini del" data-s="cancela">Cancelar noite</button></div>`;
   }
   if (ui==="ajuste") botoes = ajuste; else if (ui==="cancela") botoes = cancela;
   return `<div class="sono-top"><div><div class="label" style="color:${awake?"var(--warn)":"var(--sleep)"}">${titulo}</div><div class="clock" id="s-clock">00:00:00</div></div>
@@ -964,6 +966,7 @@ $("sono-card").addEventListener("click", e=>{
   else if (a==="volta") sonoVoltou();
   else if (a==="pick" || a==="ajuste" || a==="cancela"){ S.sonoUI = a; renderSono(); }
   else if (a==="voltar"){ S.sonoUI = null; renderSono(); }
+  else if (a==="corrigir") openSonoAtivo();
   else if (a==="cancela-ok") putSono(null);
   else if (a==="aj-ok"){
     const v = new Date($("s-aj").value).getTime(), st = S.sono, primeiro = (st.despertares||[]).concat(st.acordado?[st.acordado]:[]).map(d=>d.at).sort((x,y)=>x-y)[0];
@@ -981,8 +984,20 @@ function despRowHTML(d){
   return `<div class="desp-row"><input type="time" class="d-at" value="${d?hmIn(d.at):""}" aria-label="Acordou"><select class="d-mot" aria-label="Motivo">${Object.entries(MOT).map(([k,v])=>`<option value="${k}"${d&&d.motivo===k?" selected":""}>${v}</option>`).join("")}</select><input type="time" class="d-vol" value="${d&&d.volta?hmIn(d.volta):""}" aria-label="Voltou a dormir"><button type="button" class="mini del" data-x aria-label="Remover">×</button></div>`;
 }
 function sfTipo(t){ sf.tipo = t; setSeg($("sf-tipo"), t); $("sf-desp-box").hidden = t!=="noite"; }
+function sfModo(ativo){ sf.ativo = ativo; $("sf-tipo").hidden = ativo; $("sf-fim-row").hidden = ativo; $("sf-desp-hint").hidden = !ativo; }
+// corrigir a noite que ainda está acontecendo: início, despertares e o despertar atual
+function openSonoAtivo(){
+  const st = S.sono; if (!st || st.tipo!=="noite") return;
+  sf.editId = null; sfModo(true);
+  $("sf-title").textContent = "Corrigir noite em andamento";
+  $("sf-ini").value = toInput(st.inicio);
+  const ds = (st.despertares||[]).slice().sort((a,b)=>a.at-b.at).concat(st.acordado ? [{at:st.acordado.at, motivo:st.acordado.motivo, volta:null}] : []);
+  $("sf-desp").innerHTML = ds.map(despRowHTML).join("") || despRowHTML(null);
+  $("sf-nota").value = st.nota || "";
+  $("sf-err").hidden = true; sfTipo("noite"); $("sf-bg").hidden = false;
+}
 function openSonoForm(f, dia){
-  sf.editId = f ? f.id : null;
+  sf.editId = f ? f.id : null; sfModo(false);
   $("sf-title").textContent = f ? "Editar sono" : "Registrar sono";
   const now = Date.now(), k = dia ?? sod(now), tipo = f ? f.tipo : "noite";
   let ini, fim;
@@ -1004,6 +1019,7 @@ $("add-sono-past").addEventListener("click", ()=>openSonoForm(null, S.sel ?? sod
 $("sf").addEventListener("submit", e=>{
   e.preventDefault();
   const err = m => { $("sf-err").textContent = m; $("sf-err").hidden = false; };
+  if (sf.ativo) return salvaSonoAtivo(err);
   const ini = new Date($("sf-ini").value).getTime(), fim = new Date($("sf-fim").value).getTime();
   if (!isFinite(ini) || !isFinite(fim)) return err("Preencha a hora em que dormiu e a hora em que acordou.");
   if (fim <= ini) return err("A hora em que acordou precisa ser depois da hora em que dormiu.");
@@ -1029,6 +1045,32 @@ $("sf").addEventListener("submit", e=>{
   putFeed(id, rec); $("sf-bg").hidden = true;
   toast((novo ? (sf.tipo==="soneca" ? "Soneca registrada" : "Noite registrada") : "Sono atualizado")+" · "+durMs(sf.tipo==="noite" ? noiteCalc(rec).sono : fim-ini), novo ? id : null);
 });
+
+function salvaSonoAtivo(err){
+  const st = S.sono; if (!st){ $("sf-bg").hidden = true; return; }
+  const now = Date.now(), ini = new Date($("sf-ini").value).getTime();
+  if (!isFinite(ini)) return err("Preencha a hora em que ele dormiu.");
+  if (ini > now) return err("A hora em que dormiu está no futuro.");
+  if (now - ini > 18*60*MIN) return err("O início da noite está há mais de 18 horas. Confira a data.");
+  const rows = [...$("sf-desp").querySelectorAll(".desp-row")].filter(r => r.querySelector(".d-at").value || r.querySelector(".d-vol").value);
+  const ds = []; let acordado = null;
+  for (const row of rows){
+    const a = row.querySelector(".d-at").value, v = row.querySelector(".d-vol").value, motivo = row.querySelector(".d-mot").value;
+    const at = resolveHora(a, ini);
+    if (!isFinite(at)) return err("Preencha a hora em que ele acordou em cada despertar.");
+    if (at > now + MIN) return err("Um despertar está depois de agora. Confira os horários.");
+    if (!v){ if (acordado) return err("Só o último despertar pode ficar sem a hora em que voltou a dormir."); acordado = {at, motivo}; continue; }
+    const volta = resolveHora(v, at);
+    if (volta > now + MIN) return err("Uma volta ao sono está depois de agora. Confira os horários.");
+    ds.push({at, motivo, volta});
+  }
+  ds.sort((a,b)=>a.at-b.at);
+  for (let i=1;i<ds.length;i++) if (ds[i].at < ds[i-1].volta) return err("Dois despertares estão se sobrepondo. Confira os horários.");
+  if (acordado && ds.length && acordado.at < ds[ds.length-1].volta) return err("O despertar sem volta ao sono precisa ser o último da noite.");
+  putSono(Object.assign({}, st, {inicio: ini, despertares: ds, acordado, nota: $("sf-nota").value.trim()}));
+  $("sf-bg").hidden = true;
+  toast("Noite corrigida · "+ds.length+(ds.length===1?" despertar":" despertares")+(acordado?" + acordado agora":""), null);
+}
 
 /* ---------- cronômetro de arroto (sincronizado, sem som) ---------- */
 S.burp = null; let wake = null;
